@@ -1,6 +1,7 @@
 package com.fc.secretdiary
 
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity() {
             val pwd = sharedPreference.getString("password", "000")
             if (pwd.equals(pwdFromUser)) {
                 // 성공
-//                startActivity()
+                startActivity(Intent(this, DiaryActivity::class.java))
             } else {
                 showErrPopUp()
             }
