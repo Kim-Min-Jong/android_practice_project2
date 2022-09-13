@@ -1,5 +1,5 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme. --> <!--머터리얼 컴포넌트는 기본적으로 색깔을 설정해놓아버려서 색을 바꿔도 적용이안됨 -->
     <style name="Theme.SecretDiary" parent="Theme.MaterialComponents.DayNight.DarkActionBar">
         <!-- Primary brand color. -->
         <item name="colorPrimary">@color/purple_500</item>
@@ -12,5 +12,9 @@
         <!-- Status bar color. -->
         <item name="android:statusBarColor" tools:targetApi="l">?attr/colorPrimaryVariant</item>
         <!-- Customize your theme here. -->
+    </style>
+
+    <style name="Theme.SecretDiary.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+
     </style>
 </resources>
