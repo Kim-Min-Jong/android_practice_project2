@@ -1,7 +1,7 @@
 Secret Diary
 ============
 ## Layout을 그리는 법
-+ ###constriaint lauout 사용하기
++ constriaint layout 사용하기
 > constraint layout은 이름과 같이 뷰에 들어가는 컴포넌트에 제약조건을
 > 걸어주어 뷰를 그리는 레이아웃을 말한다.
 >
@@ -20,7 +20,7 @@ Secret Diary
 > 이외에도 뷰의 visibility 가 gone이 되었을 때 그 뷰에 걸려 있던 다른 뷰를 어떻게 해야할지 처리하는 ```layout_goneMargin``` 속성  
 > 뷰 위치의 편향을 조정하는 ```layout_constraintHori_bias``` 속성 등 여러 속성이 있다.
 
-+ ###custom font 사용하기
++ custom font 사용하기
 > 앱을 만들다 보면 텍스트가 들어가게 되고 폰트도 필요하게 될 것이다.  
 > 내장 폰트를 사용할 순 있지만 내장 폰트가 마음에 들지않아 외부 폰트를 가져와서 사용하고 싶은 경우도 있을 것 이다.  
 > 이럴 때, 외장 폰트를 사용한다.
@@ -30,7 +30,7 @@ Secret Diary
 > > 3.font디렉토리에 다운받은 폰트파일을 저장한다.  
 > > 4.적용할 텍스트에 ```andoird:fontfamily```에 ```@font/~``` 형식으로 지정한다.
 
-+ ### EditText
++  EditText
 > 값을 입력할 때 사용하는 컴포넌트이다
 
 ## Handler 사용하기
