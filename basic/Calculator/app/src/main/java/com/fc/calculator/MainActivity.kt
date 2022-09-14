@@ -7,11 +7,17 @@ import android.os.Bundle
 import android.text.Spannable
 import android.text.SpannableStringBuilder
 import android.text.style.ForegroundColorSpan
+import android.view.LayoutInflater
 import android.view.View
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat.getColor
+import androidx.core.view.isVisible
+import androidx.room.Room
+import com.fc.calculator.model.History
+import org.w3c.dom.Text
 import kotlin.math.exp
 
 class MainActivity : AppCompatActivity() {
@@ -22,12 +28,23 @@ class MainActivity : AppCompatActivity() {
     private val resultTv : TextView by lazy{
         findViewById<TextView>(R.id.result_tv)
     }
+    private val historyLayout: View by lazy{
+        findViewById<View>(R.id.history_ll)
+    }
+    private val historyLinearLayout: LinearLayout by lazy{
+        findViewById<LinearLayout>(R.id.history_list)
+    }
+
+    lateinit var db: AppDatabase
+
     private var isOperator = false
     private var hasOperator = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        db = Room.databaseBuilder(this, AppDatabase::class.java, "historyDB").build()
     }
     @RequiresApi(Build.VERSION_CODES.M)
     fun buttonClicked(v: View){
@@ -113,12 +130,6 @@ class MainActivity : AppCompatActivity() {
             else -> ""
        }
    }
-   fun historyButtonClicked(v: View){
-
-    }
-    fun equalButtonClicked(v: View){
-
-    }
     fun resultButtonClicked(v: View){
         val expressionText = expressionTv.text.split(" ")
 
@@ -136,6 +147,12 @@ class MainActivity : AppCompatActivity() {
         val exprText = expressionTv.text.toString()
         val resultText = calculateExpression()
 
+        // db입력 --- ui 스레드에선 안됨
+        Thread(Runnable{
+            db.historyDao().insertHistory(History(null, exprText, resultText))
+        }).start()
+
+
         resultTv.text = ""
         expressionTv.text = resultText
         isOperator = false
@@ -148,6 +165,35 @@ class MainActivity : AppCompatActivity() {
         hasOperator = false
     }
 
+    fun historyButtonClicked(v: View){
+        historyLayout.isVisible = true
+        historyLinearLayout.removeAllViews()
+        // db에서 기록 가져오기
+        Thread(Runnable{
+            db.historyDao().getAll().reversed().forEach {
+                // binding은 UI이 이므로 UI 쓰레드에서 실행해야함
+                runOnUiThread {
+                    val historyView = LayoutInflater.from(this).inflate(R.layout.history_row,null, false)
+                    historyView.findViewById<TextView>(R.id.expresstion_tv).text = it.expression
+                    historyView.findViewById<TextView>(R.id.result_tv).text = "= ${it.result}"
+
+                    historyLinearLayout.addView(historyView)
+                }
+            }
+        }).start()
+    }
+
+    fun closeHistoryButtonClicked(v: View){
+        historyLayout.isVisible = false
+    }
+    fun historyClearButtonClicked(v:View){
+        // db에서 모든 기록 삭제
+        // 뷰에서 모든 기록 삭제
+        historyLinearLayout.removeAllViews()
+        Thread(Runnable{
+            db.historyDao().deleteAll()
+        }).start()
+    }
     fun String.isNumber():Boolean{
         return try{
             this.toBigInteger()
