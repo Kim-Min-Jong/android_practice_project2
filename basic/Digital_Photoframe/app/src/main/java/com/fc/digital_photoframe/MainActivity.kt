@@ -61,7 +61,16 @@ class MainActivity : AppCompatActivity() {
         initAddPhotoButton()
         initStartPhotoFrameModeButton()
     }
-
+    private fun initStartPhotoFrameModeButton() {
+        startPhotoFrameModeButton.setOnClickListener {
+            val intent = Intent(this, PhotoFrameActivity::class.java)
+            imageUriList.forEachIndexed { index, uri ->
+                intent.putExtra("photo$index", uri.toString())
+            }
+            intent.putExtra("photoListSize", imageUriList.size)
+            startActivity(intent)
+        }
+    }
     private fun initAddPhotoButton() {
         addPhotoButton.setOnClickListener {
             when{
@@ -128,7 +137,5 @@ class MainActivity : AppCompatActivity() {
     }
 
 
-    private fun initStartPhotoFrameModeButton() {
 
-    }
 }
