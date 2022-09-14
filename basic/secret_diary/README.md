@@ -42,11 +42,11 @@ Secret Diary
 > UI 작업은 UI 쓰레드에서 실행된다.  
 > 이렇게 UI 작업, 기타 작업을 나누어 실행하여 UI Thread blocking을 방지해 사용자 경험에 있어 긍정적인 효과를 줄 수 있다.   
 > ex)
-> ```
+> ```kotlin
 > # 메인 쓰레드에 연결된 handler
 > private val handler = Handler(Looper.getMainLooper())
 > ```
-> ```
+> ```kotlin
 >  # runnable의 내용을 500ms 후에 실행함 (지연 실행)
 >  val runnable = Runnable{ }
 >  hanlder.postDelayed(runnable, 500)
@@ -62,7 +62,7 @@ Secret Diary
 >> 값 쓰기  
 >> ```putInt()``` ```putString()``` 등을 사용하여 값을 쓸 수 있다.  
 >> ex)
->> ```
+>> ```kotlin
 >> val sharedPref = activity?.getPreferences(Context.MODE_PRIVATE) ?: return
 >>       with (sharedPref.edit()) {
 >>          putInt(getString(R.string.saved_high_score_key), newHighScore)
@@ -86,7 +86,7 @@ Secret Diary
 > AlerDialog 클래스의 Builder를 통해 생성할 수 있다.  
 > ```title, Message, PositiveButton, NegetiveButton, View``` 등 다양한 속성을 지정하여 dialog를 만들 수 있다.  
 > ex)
->```     
+>```kotlin     
 >        AlertDialog.Builder(this)
 >              .setTitle("실패")
 >              .setMessage("비밀번호가 잘못되었습니다.")
@@ -98,7 +98,7 @@ Secret Diary
 # Kotlin 문법
 > lambda식에서 사용하지 않는 파라미터 _로 처리하기  
 > ex)
-> ```
+> ```kotlin
 > .setPositiveButton(""){ dialog, which ->
 > 
 > }

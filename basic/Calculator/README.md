@@ -2,7 +2,7 @@
 ===
 ## Layout을 그리는법
 + TabLayout 사용하기
-```
+```xml
 주로 격자(테이블)구조 layout을 구성할 때 많이 사용됨
 <TabLayout
     android:shrinkColumns="*" 
@@ -19,7 +19,7 @@
 Table Layout 안에 Row를 두고, 그 안에 컴포넌트를 두어 격자 구조로 사용
 컴포넌트를 넣다보면 컴포넌트의 기본 크기 때문에 layout 범위를 넘어가는 경우가 있는데,
 이때 shrinkColumns="*" 를 지정해 주면 TableLayout의 width에 자동을 맞춰짐 
-```
+```kotlin
 + Constraint Layout 사용하기
 + LayoutInflater 사용하기
 > layoutinflater는 미리 정의해둔 layout(.xml)을 메모리에 올려 사용할 수 있게 해주는 역할을한다.  
@@ -47,7 +47,7 @@ UI가 멈추거나 버벅거리게 보이는 UI blocking이 발생한다.
 그렇기 때문에 UI Thread에서는 UI 관련 작업만 하게 하고, 네트워킹이나 기타 무거운 작업들은 새로운 스레드를 만들어서 
 그 곳에서 처리를 해야 바람직하다.
 ```
-```
+```kotlin
 ex) MainActivity안의 DB작업
 
 Thread(Runnable{
@@ -65,7 +65,7 @@ Thread(Runnable{
 그렇지 않다면 Thread Event Queue에 적재후 추후에 실행된다.
 결론적으로, runOnUiThread블록 안에서 실행되는 작업은 UI Thread에서 실행된다.
 ```
-```
+```kotlin
 ex) 계산기 앱에서 db 기록을 가져오는 코드
 Thread(Runnable{
             db.historyDao().getAll().reversed().forEach {
@@ -90,7 +90,7 @@ SQL 쿼리의 컴파일 시간 확인
 간소화된 데이터베이스 이전 경로
 출처: 안드로이드 공식 홈페이지 [https://developer.android.com/training/data-storage/room?hl=ko]
 ```
-```
+```kotlin
 기본 사용법)
 1. 먼저 앱 수준의 build.gradle에 종속성을 추가한다.
 dependencies {
@@ -113,7 +113,7 @@ dependencies {
 ```
 이 프로젝트에 사용된 Room Object
 ```
-```
+```kotlin
 database
 
 @Database(entities=[History::class], version=1)
@@ -121,7 +121,7 @@ abstract class AppDatabase: RoomDatabase() {
     abstract fun historyDao(): HistoryDao
 }
 ```
-```
+```kotlin
 entity(data class)
 
 @Entity
@@ -134,7 +134,7 @@ data class History(
     val result: String?
 )
 ```
-```
+```kotlin
 Dao
 
 @Dao
@@ -157,7 +157,7 @@ interface HistoryDao{
 > 확장함수는 기존에 정의되어있는 클래스에 함수를 추가하는 기능이다.  
 > 클래스별 기본 제공함수들이 있으나 본인이 필요한 클래스 함수가 있을 시 정의해서 사용할 수 있다.  
 > 확장함수는 ```fun 클래스이름.함수이름(인자타입):리턴타입 { 구현 } ``` 으로 정의할 수 있다.
-```
+```kotlin
 ex) String의 값이 정수값인지 확인할 수 있는 확장함수 예제이다.
     fun String.isNumber():Boolean{
         return try{
@@ -174,7 +174,7 @@ ex) String의 값이 정수값인지 확인할 수 있는 확장함수 예제이
 > 자바에서는 위 함수들을 따로 생성해주어야 했지만 코틀린에서는 data class를 사용함으로써 추가 생성작업을 줄일 수 있다.  
 > 또, ```getter, setter``` 같은 경우도 자바에서는 ```getXXX(), setXXX()``` 형식으로 만들어 주어야 했지만
 > data class에서는 생성자에 ```val, var``` 형식으로 선언을 해주면 자동적으로 getter,setter가 셍성된다
-```
+```kotlin
 ex) java
 
 public class History {
@@ -207,7 +207,7 @@ public class History {
 
 }
 ```
-```
+```kotlin
 ex) kotlin
 
 data class history(
