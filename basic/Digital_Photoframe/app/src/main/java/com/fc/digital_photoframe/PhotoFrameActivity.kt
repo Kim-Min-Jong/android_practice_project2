@@ -3,7 +3,9 @@ package com.fc.digital_photoframe
 import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.ImageView
+import java.util.*
 import kotlin.concurrent.timer
 
 class PhotoFrameActivity : AppCompatActivity() {
@@ -17,12 +19,12 @@ class PhotoFrameActivity : AppCompatActivity() {
     }
 
     private var currentPosition = 0
-
+    private var timer: Timer? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_photo_frame_activiry)
+        Log.d("PhotoFrame", "onCreate!!!")
         getPhotoUriFromIntent()
-        startTimer()
     }
 
     private fun getPhotoUriFromIntent(){
@@ -37,9 +39,10 @@ class PhotoFrameActivity : AppCompatActivity() {
     // 시각에 따라 이미지를 넘겨주기 위해 타이머 생성
     private fun startTimer(){
         // 기본적으로 타이머는 UI쓰레드가 아님
-        timer(period=5000){
+        timer = timer(period=5000){
             // 실행할 문장
             runOnUiThread{
+                Log.d("PhotoFrame", "5초가 지나감 !!")
                 val current = currentPosition
                 val next = if(photoList.size <= currentPosition + 1) 0 else currentPosition + 1
 
@@ -54,6 +57,28 @@ class PhotoFrameActivity : AppCompatActivity() {
                 currentPosition = next
             }
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        Log.d("PhotoFrame", "onStop!!! timer cancel")
+        timer?.cancel()
+    }
+
+
+    override fun onStart() {
+        super.onStart()
+
+        Log.d("PhotoFrame", "onStart!!! timer start")
+        startTimer()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        Log.d("PhotoFrame", "onDestroy!!! timer cancel")
+        timer?.cancel()
     }
 
 }
