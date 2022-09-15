@@ -6,13 +6,35 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
+
+    <Button
+        android:id="@+id/resetBtn"
+        android:text="RESET"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@id/recordBtn"
+        app:layout_constraintTop_toTopOf="@id/recordBtn"
+        app:layout_constraintBottom_toBottomOf="@id/recordBtn"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/recordTimeTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="20dp"
+        app:layout_constraintBottom_toTopOf="@id/recordBtn"
+        app:layout_constraintEnd_toEndOf="@id/recordBtn"
+        app:layout_constraintStart_toStartOf="@id/recordBtn"
+        tools:text="123:123" />
+
+    <com.fc.voicerecorder.RecordButton
+        android:id="@+id/recordBtn"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:layout_marginBottom="50dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintStart_toStartOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
