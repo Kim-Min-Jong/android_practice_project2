@@ -102,14 +102,14 @@ webView.apply {
 
 
 > *WebViewClient* 에서 자주 사용되는 콜백 함수
-> > 1.```onPageStarted```: 페이지가 로딩되는 첫 시점에 호출된다.
-> > 2.```onPageFinished```: 페이지 로딩이 끝나면 호출된다.
+> > 1.```onPageStarted```: 페이지가 로딩되는 첫 시점에 호출된다.  
+> > 2.```onPageFinished```: 페이지 로딩이 끝나면 호출된다.  
 
 
 > *WebChromeClient*에서 자주 사용되는 콜백함수
-> > 1.```onProgressChanged```: 페이지가 로딩되는 동안 호출된다.
-> > 2.```onCreateWindow```: 새 창을 열 때 호출된다.
-> > 3.```onCloseWindow```: 웹뷰가 창을 닫을 때 호출된다.
+> > 1.```onProgressChanged```: 페이지가 로딩되는 동안 호출된다.  
+> > 2.```onCreateWindow```: 새 창을 열 때 호출된다.  
+> > 3.```onCloseWindow```: 웹뷰가 창을 닫을 때 호출된다.  
 
  ```kotlin
 //  in this project example
