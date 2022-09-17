@@ -105,6 +105,10 @@ class MainActivity : AppCompatActivity() {
             setDataSource(recordingPath)
             prepare()
         }
+        player?.setOnCompletionListener {
+            stopPlaying()
+            state = State.AFTER_RECORDING
+        }
         player?.start()
         visualizerView.startVisualizing(true)
         recordTimeView.startCountUp()
@@ -126,6 +130,8 @@ class MainActivity : AppCompatActivity() {
         }
         resetButton.setOnClickListener {
             stopPlaying()
+            visualizerView.clearVisualization()
+            recordTimeView.clearCountTime()
             state = State.BEFORE_RECORDING
         }
         recordButton.setOnClickListener {
