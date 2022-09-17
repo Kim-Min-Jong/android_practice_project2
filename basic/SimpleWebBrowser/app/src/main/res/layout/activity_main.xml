@@ -33,6 +33,7 @@
             android:layout_width="0dp"
             android:layout_height="32dp"
             android:background="@drawable/shape_addr_bar"
+            android:textColor="@color/black"
             android:imeOptions="actionDone"
             android:importantForAutofill="no"
             android:inputType="textUri"

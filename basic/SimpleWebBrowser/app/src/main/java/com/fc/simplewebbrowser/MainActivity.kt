@@ -60,9 +60,10 @@ class MainActivity : AppCompatActivity() {
                 val loadingUrl = textView.text.toString()
                 if(URLUtil.isNetworkUrl(loadingUrl)){
                     webView.loadUrl(loadingUrl)
-                } else{
-                    webView.loadUrl("https://$loadingUrl")
+                } else {
+                    webView.loadUrl("http://$loadingUrl")
                 }
+                addressBar.setText(loadingUrl)
             }
             return@setOnEditorActionListener false
         }
