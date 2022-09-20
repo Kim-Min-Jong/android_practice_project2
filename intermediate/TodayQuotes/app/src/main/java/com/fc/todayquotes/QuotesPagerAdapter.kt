@@ -1,5 +1,6 @@
 package com.fc.todayquotes
 
+import android.annotation.SuppressLint
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,21 +18,23 @@ class QuotesPagerAdapter(
         )
 
     override fun onBindViewHolder(holder: QuoteViewHolder, position: Int) {
-        holder.bind(quotes[position], isNameRevealed)
+        val actualPosition = position % quotes.size
+        holder.bind(quotes[actualPosition], isNameRevealed)
     }
 
     override fun getItemCount(): Int {
-        return quotes.size
+        return Int.MAX_VALUE
     }
 
     inner class QuoteViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val quoteTv: TextView = itemView.findViewById(R.id.quoteTv)
         private val nameTv: TextView = itemView.findViewById(R.id.nameTv)
 
+        @SuppressLint("SetTextI18n")
         fun bind(quote: Quote, isNameRevealed: Boolean) {
-            quoteTv.text = quote.quote
+            quoteTv.text = "\"${quote.quote}\""
             if (isNameRevealed) {
-                nameTv.text = quote.name
+                nameTv.text = "- ${quote.name}"
                 nameTv.visibility = View.VISIBLE
             } else{
                 nameTv.visibility = View.GONE
