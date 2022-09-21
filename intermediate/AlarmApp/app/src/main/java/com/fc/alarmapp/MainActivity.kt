@@ -1,5 +1,6 @@
 package com.fc.alarmapp
 
+import android.app.AlarmManager
 import android.app.PendingIntent
 import android.app.TimePickerDialog
 import android.content.Context
@@ -39,7 +40,7 @@ class MainActivity : AppCompatActivity() {
                 val model = saveAlarmModel(hour, minute, false)
                 renderView(model)
                 // 기존 알람삭제
-
+                cancelAlarm()
             },calendar.get(Calendar.HOUR_OF_DAY),calendar.get(Calendar.MINUTE),false).show()
         }
     }
@@ -59,13 +60,35 @@ class MainActivity : AppCompatActivity() {
         val onOffBtn = findViewById<Button>(R.id.onOffBtn)
         onOffBtn.setOnClickListener {
             // 데이터를 확인한다.
-
+            val model = it.tag as? AlarmDisplayModel ?: return@setOnClickListener
+            val newModel = saveAlarmModel(model.hour, model.minute, model.onOff.not())
+            renderView(newModel)
 
             // 온오프에따라 작업을 처리한다.
+            if(newModel.onOff) {
+                // 켜진 경우 - 알람등록
+                val calendar = Calendar.getInstance().apply{
+                    set(Calendar.HOUR_OF_DAY, newModel.hour)
+                    set(Calendar.MINUTE, newModel.minute)
 
-            //오프-알람제거 온-알람등록
+                    if(before(Calendar.getInstance())){
+                        add(Calendar.DATE, 1)
+                    }
+                }
 
-            //데이터 저장
+                val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+                val intent = Intent(this, AlarmReceiver::class.java)
+                val pendingIntent = PendingIntent.getBroadcast(this, ALARM_REQUEST_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+                alarmManager.setInexactRepeating(
+                    AlarmManager.RTC_WAKEUP,
+                    calendar.timeInMillis,
+                    AlarmManager.INTERVAL_DAY,
+                    pendingIntent
+                )
+            } else{
+                // 알람 제거
+                cancelAlarm()
+            }
         }
     }
 
@@ -79,14 +102,14 @@ class MainActivity : AppCompatActivity() {
         val model = AlarmDisplayModel(alarmData[0].toInt(), alarmData[1].toInt(), onOffDBValue)
 
         // 보정 예외처리
-//        val pendingIntent = PendingIntent.getBroadcast(this, ALARM_REQUEST_CODE, Intent(this, AlarmReciever::class.java), PendingIntent.FLAG_NO_CREATE)
-//        if(pendingIntent == null && model.onOff){
-//            // 알람은 꺼져있는데, 데이터가 알람이 있는 경우
-//            model.onOff = false
-//        } else if(pendingIntent != null && model.onOff.not()){
-//            // 알람은 있는데, 데이터에는 알람이 등록이 안되있는 경우
-//            pendingIntent.cancel()
-//        }
+        val pendingIntent = PendingIntent.getBroadcast(this, ALARM_REQUEST_CODE, Intent(this, AlarmReceiver::class.java), PendingIntent.FLAG_NO_CREATE)
+        if(pendingIntent == null && model.onOff){
+            // 알람은 꺼져있는데, 데이터가 알람이 있는 경우
+            model.onOff = false
+        } else if(pendingIntent != null && model.onOff.not()){
+            // 알람은 있는데, 데이터에는 알람이 등록이 안되있는 경우
+            pendingIntent.cancel()
+        }
         return model
     }
 
@@ -104,7 +127,10 @@ class MainActivity : AppCompatActivity() {
         }
 
     }
-
+    private fun cancelAlarm(){
+        val pendingIntent = PendingIntent.getBroadcast(this, ALARM_REQUEST_CODE, Intent(this, AlarmReceiver::class.java), PendingIntent.FLAG_NO_CREATE)
+        pendingIntent?.cancel()
+    }
     companion object{
         private const val ALARM_KEY = "alarm"
         private const val ON_OFF_KEY = "onOff"
