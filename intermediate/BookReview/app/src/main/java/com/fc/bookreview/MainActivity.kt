@@ -3,7 +3,10 @@ package com.fc.bookreview
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.fc.bookreview.adapter.BookAdapter
 import com.fc.bookreview.api.BookService
+import com.fc.bookreview.databinding.ActivityMainBinding
 import com.fc.bookreview.model.SearchBookDto
 import org.json.JSONArray
 import org.json.JSONObject
@@ -14,9 +17,15 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
+    private val adapter = BookAdapter()
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+        initRecyclerView()
 
         val retrofit = Retrofit.Builder()
             .baseUrl("https://openapi.naver.com/ ")
@@ -40,6 +49,7 @@ class MainActivity : AppCompatActivity() {
                         it.books.forEach { book ->
                             Log.d(TAG, book.toString())
                         }
+                        adapter.submitList(it.books)
                     }
                 }
 
@@ -49,11 +59,16 @@ class MainActivity : AppCompatActivity() {
 
             })
     }
+
+    private fun initRecyclerView() {
+        binding.bookRecyclerView.layoutManager = LinearLayoutManager(this)
+        binding.bookRecyclerView.adapter = adapter
+    }
+
     private fun getJsonObject(): JSONObject{
         val jsonString = assets.open(KEY).reader().readText()
         val jsonArray = JSONArray(jsonString)
-        println(jsonString)
-        println(jsonArray)
+
         return jsonArray.getJSONObject(0)
     }
 
