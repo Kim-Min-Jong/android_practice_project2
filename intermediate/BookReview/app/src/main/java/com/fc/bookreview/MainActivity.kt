@@ -40,7 +40,7 @@ class MainActivity : AppCompatActivity() {
         initHistoryRecyclerView()
         initSearchEditText()
 
-        db = Room.databaseBuilder(applicationContext, AppDatabase::class.java, "BookSearchDB").build()
+        db = getAppDatabase(this)
 
         val retrofit = Retrofit.Builder()
             .baseUrl("https://openapi.naver.com/ ")
