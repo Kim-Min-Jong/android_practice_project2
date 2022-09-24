@@ -10,12 +10,15 @@ import com.fc.bookreview.model.Book
 import com.fc.bookreview.databinding.ItemBookBinding
 
 
-class BookAdapter: ListAdapter<Book, BookAdapter.BookItemViewHolder>(diffUtil) {
+class BookAdapter(val itemClickedListener:(Book) -> Unit): ListAdapter<Book, BookAdapter.BookItemViewHolder>(diffUtil) {
     inner class BookItemViewHolder(private val binding: ItemBookBinding): RecyclerView.ViewHolder(binding.root){
 
         fun bind(book: Book){
             binding.titleTv.text = book.title
             binding.descriptionTv.text = book.description
+            binding.root.setOnClickListener {
+                itemClickedListener(book)
+            }
             Glide.with(binding.coverImageView)
                 .load(book.coverSmallUrl)
                 .into(binding.coverImageView)

@@ -1,5 +1,6 @@
 package com.fc.bookreview
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -23,8 +24,8 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
-    private val adapter = BookAdapter()
     private lateinit var historyAdapter: HistoryAdapter
+    private lateinit var bookAdapter: BookAdapter
     private lateinit var binding: ActivityMainBinding
     private lateinit var bookService: BookService
     private lateinit var keys: JSONObject
@@ -60,7 +61,7 @@ class MainActivity : AppCompatActivity() {
                         return
                     }
                     response.body()?.let{
-                        adapter.submitList(it.books)
+                        bookAdapter.submitList(it.books)
                     }
                 }
 
@@ -86,7 +87,7 @@ class MainActivity : AppCompatActivity() {
                         Log.e(TAG, "NOT SUCCESS")
                         return
                     }
-                    adapter.submitList(response.body()?.books.orEmpty())
+                    bookAdapter.submitList(response.body()?.books.orEmpty())
 
                 }
 
@@ -125,8 +126,13 @@ class MainActivity : AppCompatActivity() {
         }.start()
     }
     private fun initRecyclerView() {
+        bookAdapter = BookAdapter{
+            val intent = Intent(this, DetailActivity::class.java)
+            intent.putExtra("bookModel", it)
+            startActivity(intent)
+        }
         binding.bookRecyclerView.layoutManager = LinearLayoutManager(this)
-        binding.bookRecyclerView.adapter = adapter
+        binding.bookRecyclerView.adapter = bookAdapter
     }
     private fun initHistoryRecyclerView() {
         historyAdapter = HistoryAdapter { 
