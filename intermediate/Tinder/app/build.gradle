@@ -30,6 +30,9 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    viewBinding{
+        enabled = true
+    }
 }
 
 dependencies {
@@ -41,6 +44,8 @@ dependencies {
 
     implementation platform('com.google.firebase:firebase-bom:30.4.1')
     implementation 'com.google.firebase:firebase-analytics-ktx'
+    implementation 'com.google.firebase:firebase-auth-ktx'
+
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'
