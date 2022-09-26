@@ -81,18 +81,21 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
     }
 
     private fun getUnSelectedUsers() {
-        userDB.addChildEventListener(object: ChildEventListener {
+        userDB.addChildEventListener(object : ChildEventListener {
             // 새로운 상대가 생길 시
             override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
                 // 지금아이디가 내가 아니고, 상대방의 like목록에 내가 없고, 상대방의 dislike목록에 내가 없을때인 것만 보여줌
                 // -->한번도 선택 안된 유저
-                if(snapshot.child(DBKey.USER_ID).value != getCurrentUserId()
-                    && snapshot.child(DBKey.LIKED_BY).child(DBKey.LIKE).hasChild(getCurrentUserId()).not()
-                    && snapshot.child(DBKey.LIKED_BY).child(DBKey.DISLIKE).hasChild(getCurrentUserId()).not()){
+                if (snapshot.child(DBKey.USER_ID).value != getCurrentUserId()
+                    && snapshot.child(DBKey.LIKED_BY).child(DBKey.LIKE).hasChild(getCurrentUserId())
+                        .not()
+                    && snapshot.child(DBKey.LIKED_BY).child(DBKey.DISLIKE)
+                        .hasChild(getCurrentUserId()).not()
+                ) {
 
                     val userId = snapshot.child(DBKey.USER_ID).value.toString()
                     var name = "undecided" // 아이디는 있는데 닉네임 설정을 아직 안했을 때 디폴트값
-                    if(snapshot.child(DBKey.NAME).value != null){
+                    if (snapshot.child(DBKey.NAME).value != null) {
                         name = snapshot.child(DBKey.NAME).value.toString() // 닉네임 있으면 재초기화
                     }
                     cardItems.add(CardItem(userId, name))
@@ -103,7 +106,7 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
 
             // 상대방의 데이터가 바뀌었을 시
             override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
-                cardItems.find{ it.userId == snapshot.key }?.let{
+                cardItems.find { it.userId == snapshot.key }?.let {
                     it.name = snapshot.child(DBKey.NAME).value.toString()
                 }
                 adapter.submitList(cardItems)

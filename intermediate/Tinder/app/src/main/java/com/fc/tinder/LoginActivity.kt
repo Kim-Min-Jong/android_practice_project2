@@ -27,6 +27,8 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var callbackManager: CallbackManager
     private var binding: ActivityLoginBinding? = null
     private var backPressedTime: Long = 0
+
+    // onActivityResult의 대응 방안으로 registerForActivityResult를 사용함
     private var Result = registerForActivityResult(
         ActivityResultContracts.StartActivityForResult()){ result ->
             if(result.resultCode == RESULT_OK){
@@ -137,6 +139,7 @@ class LoginActivity : AppCompatActivity() {
                     auth.signInWithCredential(credential)
                         .addOnCompleteListener(this@LoginActivity) {
                             if(it.isSuccessful){
+                                // 이 부분 데이터를 어떻게 넘겨주어야 하는지 방법 찾을 필요가 있음
                                 Result.launch(Intent(this@LoginActivity, com.facebook.FacebookActivity::class.java))
                                 handleSuccessLogin()
                             } else{
@@ -177,10 +180,10 @@ class LoginActivity : AppCompatActivity() {
         binding = null
     }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        callbackManager.onActivityResult(requestCode, resultCode, data)
-    }
+//    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+//        super.onActivityResult(requestCode, resultCode, data)
+//        callbackManager.onActivityResult(requestCode, resultCode, data)
+//    }
     override fun onBackPressed() {
         super.onBackPressed()
         if (System.currentTimeMillis() > backPressedTime + 2000) {
