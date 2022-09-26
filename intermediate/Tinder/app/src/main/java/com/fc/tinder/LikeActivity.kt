@@ -3,6 +3,7 @@ package com.fc.tinder
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.EditText
 import android.widget.Toast
@@ -32,7 +33,7 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
         super.onCreate(savedInstanceState)
         binding = ActivityLikeBinding.inflate(layoutInflater)
         setContentView(binding?.root)
-
+        Log.e("AUTH", auth.currentUser?.uid.toString())
         userDB = Firebase.database.reference.child(DBKey.USERS)
 
         val currentUserDB = userDB.child(getCurrentUserId())
