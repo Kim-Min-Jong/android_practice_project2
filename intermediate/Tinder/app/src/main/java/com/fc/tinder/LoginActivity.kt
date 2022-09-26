@@ -18,14 +18,14 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
-
+import kotlin.system.exitProcess
 
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var auth: FirebaseAuth
     private lateinit var callbackManager: CallbackManager
     private var binding: ActivityLoginBinding? = null
-
+    private var backPressedTime: Long = 0
 //    private var result = registerForActivityResult(
 //        ActivityResultContracts.StartActivityForResult()){ result ->
 //            if(result.resultCode == RESULT_OK){
@@ -149,5 +149,13 @@ class LoginActivity : AppCompatActivity() {
         super.onActivityResult(requestCode, resultCode, data)
         callbackManager.onActivityResult(requestCode, resultCode, data)
     }
-
+    override fun onBackPressed() {
+        super.onBackPressed()
+        if (System.currentTimeMillis() > backPressedTime + 2000) {
+            backPressedTime = System.currentTimeMillis()
+            Toast.makeText(this, "\'뒤로\' 버튼을 한번 더 누르면 종료됩니다.", Toast.LENGTH_SHORT).show()
+        } else if (System.currentTimeMillis() <= backPressedTime + 2000) {
+            exitProcess(0)
+        }
+    }
 }

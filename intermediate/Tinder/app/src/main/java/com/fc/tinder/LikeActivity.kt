@@ -1,5 +1,6 @@
 package com.fc.tinder
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -53,6 +54,24 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
 
         })
         initCardStackView()
+
+        initMatchedListBtn()
+        initSignOutBtn()
+
+    }
+
+    private fun initSignOutBtn() {
+        binding?.signOutButton?.setOnClickListener {
+            auth.signOut()
+            startActivity(Intent(this, MainActivity::class.java))
+            finish()
+        }
+    }
+
+    private fun initMatchedListBtn() {
+        binding?.matchListButton?.setOnClickListener {
+            startActivity(Intent(this, MatchedUserActivity::class.java))
+        }
     }
 
     private fun initCardStackView() {
@@ -147,11 +166,37 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
             .child(getCurrentUserId())
             .setValue(true)
 
-        Toast.makeText(this, "${card.name}님을 Like하셨습니다.", Toast.LENGTH_SHORT).show()
         // 매칭이 된 시점을 추가해야함
+        saveMatchIfOtherUserLikedMe(card.userId)
 
-
+        Toast.makeText(this, "${card.name}님을 Like하셨습니다.", Toast.LENGTH_SHORT).show()
     }
+
+    // 내가 상대방에 like를 보내 놨는데 상대방이 나에게 like를 했을때 match되었다고 저장
+    private fun saveMatchIfOtherUserLikedMe(otherUserId: String) {
+        val otherUserDB = userDB.child(getCurrentUserId()).child("likedBy").child("like").child(otherUserId)
+
+        otherUserDB.addListenerForSingleValueEvent(object: ValueEventListener{
+            override fun onDataChange(snapshot: DataSnapshot) {
+                if(snapshot.value == true){
+                    userDB.child(getCurrentUserId())
+                        .child("likedBy")
+                        .child("match")
+                        .child(otherUserId)
+                        .setValue(true)
+
+                    userDB.child(otherUserId)
+                        .child("likedBy")
+                        .child("match")
+                        .child(getCurrentUserId())
+                        .setValue(true)
+                }
+            }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
     private fun dislike(){
         val card = cardItems[manager.topPosition - 1]
         cardItems.removeFirst()
@@ -182,4 +227,6 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
     override fun onCardAppeared(view: View?, position: Int) {}
 
     override fun onCardDisappeared(view: View?, position: Int) {}
+
+
 }
