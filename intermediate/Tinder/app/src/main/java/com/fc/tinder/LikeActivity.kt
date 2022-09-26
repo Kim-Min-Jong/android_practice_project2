@@ -8,10 +8,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.fc.tinder.databinding.ActivityLikeBinding
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager
@@ -25,7 +22,10 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
     private lateinit var userDB: DatabaseReference
 
     private val adapter = CardItemAdapter()
-    private val careItems = mutableListOf<CardItem>()
+    private val cardItems = mutableListOf<CardItem>()
+    private val manager by lazy{
+        CardStackLayoutManager(this, this)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,6 +44,7 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
                     return
                 }
                 // 유저 정보를 갱신해라
+                getUnSelectedUsers()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -55,11 +56,49 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
     }
 
     private fun initCardStackView() {
-        binding?.cardStackView?.layoutManager = CardStackLayoutManager(this)
+        binding?.cardStackView?.layoutManager = manager
         binding?.cardStackView?.adapter = adapter
 
     }
 
+    private fun getUnSelectedUsers() {
+        userDB.addChildEventListener(object: ChildEventListener {
+            // 새로운 상대가 생길 시
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                // 지금아이디가 내가 아니고, 상대방의 like목록에 내가 없고, 상대방의 dislike목록에 내가 없을때인 것만 보여줌
+                // -->한번도 선택 안된 유저
+                if(snapshot.child("userId").value != getCurrentUserId()
+                    && snapshot.child("likedBy").child("like").hasChild(getCurrentUserId()).not()
+                    && snapshot.child("likedBy").child("disLike").hasChild(getCurrentUserId()).not()){
+
+                    val userId = snapshot.child("userId").value.toString()
+                    var name = "undecided" // 아이디는 있는데 닉네임 설정을 아직 안했을 때 디폴트값
+                    if(snapshot.child("name").value != null){
+                        name = snapshot.child("name").value.toString() // 닉네임 있으면 재초기화
+                    }
+                    cardItems.add(CardItem(userId, name))
+                    adapter.submitList(cardItems)
+                    adapter.notifyDataSetChanged()
+                }
+            }
+
+            // 상대방의 데이터가 바뀌었을 시
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                cardItems.find{ it.userId == snapshot.key }?.let{
+                    it.name = snapshot.child("name").value.toString()
+                }
+                adapter.submitList(cardItems)
+                adapter.notifyDataSetChanged()
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {}
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {}
+
+            override fun onCancelled(error: DatabaseError) {}
+
+        })
+    }
 
     private fun showNameInputPopUp() {
         val editText = EditText(this)
@@ -86,6 +125,8 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
         user["name"] = name
         currentUserDB.updateChildren(user)
 
+        // 유저정보 가져와라
+        getUnSelectedUsers()
     }
 
     private fun getCurrentUserId(): String {
@@ -96,10 +137,42 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
         return auth.currentUser?.uid.orEmpty()
     }
 
+    private fun like(){
+        val card = cardItems[manager.topPosition - 1]
+        cardItems.removeFirst()
+
+        userDB.child(card.userId)
+            .child("likedBy")
+            .child("like")
+            .child(getCurrentUserId())
+            .setValue(true)
+
+        Toast.makeText(this, "${card.name}님을 Like하셨습니다.", Toast.LENGTH_SHORT).show()
+        // 매칭이 된 시점을 추가해야함
+
+
+    }
+    private fun dislike(){
+        val card = cardItems[manager.topPosition - 1]
+        cardItems.removeFirst()
+
+        userDB.child(card.userId)
+            .child("likedBy")
+            .child("disLike")
+            .child(getCurrentUserId())
+            .setValue(true)
+
+        Toast.makeText(this, "${card.name}님을 disLike하셨습니다.", Toast.LENGTH_SHORT).show()
+    }
+
     override fun onCardDragging(direction: Direction?, ratio: Float) {}
 
     override fun onCardSwiped(direction: Direction?) {
-
+        when(direction){
+            Direction.Right -> like()
+            Direction.Left -> dislike()
+            else ->{}
+        }
     }
 
     override fun onCardRewound() {}

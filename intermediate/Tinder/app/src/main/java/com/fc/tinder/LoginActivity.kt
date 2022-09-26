@@ -32,19 +32,12 @@ class LoginActivity : AppCompatActivity() {
 //                    callbackManager.
 //            }
 //        }
-    override fun onStart() {
-        super.onStart()
-        if(auth.currentUser != null){
-            finish()
-        }
-    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding?.root)
-        finish()
 
-        Log.e("asd","asda")
         auth = Firebase.auth
         callbackManager = CallbackManager.Factory.create()
         initLoginButton()
