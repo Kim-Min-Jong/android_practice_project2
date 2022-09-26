@@ -3,6 +3,7 @@ package com.fc.tinder
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContract
 import androidx.activity.result.contract.ActivityResultContracts
@@ -15,6 +16,7 @@ import com.fc.tinder.databinding.ActivityLoginBinding
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
 
@@ -30,12 +32,19 @@ class LoginActivity : AppCompatActivity() {
 //                    callbackManager.
 //            }
 //        }
-
+    override fun onStart() {
+        super.onStart()
+        if(auth.currentUser != null){
+            finish()
+        }
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding?.root)
+        finish()
 
+        Log.e("asd","asda")
         auth = Firebase.auth
         callbackManager = CallbackManager.Factory.create()
         initLoginButton()
@@ -52,7 +61,7 @@ class LoginActivity : AppCompatActivity() {
             auth.signInWithEmailAndPassword(email, pwd)
                 .addOnCompleteListener(this) {
                     if(it.isSuccessful){
-                        finish()
+                        handleSuccessLogin()
                     } else{
                         Toast.makeText(this, "로그인에 실패했습니다. 정보를 확인해주세요.", Toast.LENGTH_SHORT).show()
                     }
@@ -105,7 +114,7 @@ class LoginActivity : AppCompatActivity() {
                 auth.signInWithCredential(credential)
                     .addOnCompleteListener(this@LoginActivity) {
                         if(it.isSuccessful){
-                            finish()
+                            handleSuccessLogin()
                         } else{
                             Toast.makeText(this@LoginActivity,"페이스북 로그인 실패", Toast.LENGTH_SHORT).show()
                         }
@@ -122,7 +131,22 @@ class LoginActivity : AppCompatActivity() {
             }
         })
     }
+    private fun handleSuccessLogin(){
+        if(auth.currentUser == null){
+            Toast.makeText(this, "로그인에 실패했습니다.", Toast.LENGTH_SHORT).show()
+            return
+        }
+        val userId = auth.currentUser?.uid.orEmpty()
 
+        // realtime db 사용  회원 정보 저장  json 형식으로 저장됨  json 트리? 형식이로 밑에 밑에 식으로 추가
+        // db안에 Users 안에 userId안에 userId로 저장됨
+        val currentUserDB = Firebase.database.reference.child("Users").child(userId)
+        val user = mutableMapOf<String, Any>()
+        user["userId"] = userId
+        currentUserDB.updateChildren(user)
+
+        this.finish()
+    }
     override fun onDestroy() {
         super.onDestroy()
         binding = null
