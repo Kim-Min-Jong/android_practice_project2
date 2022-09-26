@@ -292,9 +292,9 @@ private var Result = registerForActivityResult(
 > override fun onCardDisappeared(view: View?, position: Int) {} 
 > // 카드가 사라질 때 실행되는 콜백이다.
 > 
-> > ```
-> [*rewind 동작](https://github.com/yuyakaido/CardStackView#rewind)
-> [*cancel 동작](https://github.com/yuyakaido/CardStackView#cancel)
+> ```
+> [rewind 동작](https://github.com/yuyakaido/CardStackView#rewind)
+> [cancel 동작](https://github.com/yuyakaido/CardStackView#cancel)
 
 > **주의사항**
 > implementation 시 안될 때 가 있는데 이때는 setting.gradle의 dependencyResolutionManagement의 repository에 jcenter()를 추가하면
