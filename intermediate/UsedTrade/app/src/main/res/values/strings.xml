@@ -1,3 +1,8 @@
 <resources>
     <string name="app_name">UsedTrade</string>
+    <string name="home">홈</string>
+    <string name="chat">채팅</string>
+    <string name="myInfo">나의 정보</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
