@@ -65,11 +65,11 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         binding?.articleRecyclerView?.adapter = articleAdapter
         binding?.addFloatingBtn?.setOnClickListener{
             // 로그인 기능 구현 후 주석 지우기
-//            if(auth.currentUser != null) {
-//                startActivity(Intent(requireContext(), AddArticleActivity::class.java))
-//            } else{
-//                Snackbar.make(it, "로그인 후 사용해주세요", Snackbar.LENGTH_SHORT).show()
-//            }
+            if(auth.currentUser != null) {
+                startActivity(Intent(requireContext(), AddArticleActivity::class.java))
+            } else{
+                Snackbar.make(it, "로그인 후 사용해주세요", Snackbar.LENGTH_SHORT).show()
+            }
         }
 
 
