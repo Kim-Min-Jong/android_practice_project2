@@ -1,14 +1,14 @@
 package com.fc.usedtrade.home
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fc.usedtrade.R
 import com.fc.usedtrade.databinding.FragmentHomeBinding
 import com.fc.usedtrade.util.DBKey.Companion.DB_ARTICLES
+import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
 import com.google.firebase.database.ChildEventListener
@@ -63,6 +63,15 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
 
         binding?.articleRecyclerView?.layoutManager = LinearLayoutManager(context)
         binding?.articleRecyclerView?.adapter = articleAdapter
+        binding?.addFloatingBtn?.setOnClickListener{
+            // 로그인 기능 구현 후 주석 지우기
+//            if(auth.currentUser != null) {
+//                startActivity(Intent(requireContext(), AddArticleActivity::class.java))
+//            } else{
+//                Snackbar.make(it, "로그인 후 사용해주세요", Snackbar.LENGTH_SHORT).show()
+//            }
+        }
+
 
         articleDB.addChildEventListener(listener)
     }
