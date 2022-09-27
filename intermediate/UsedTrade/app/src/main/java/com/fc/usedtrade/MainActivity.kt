@@ -22,12 +22,13 @@ class MainActivity : AppCompatActivity() {
         // 초기화로 홈화면 프래그먼트 보여주기
         replaceFragment(homeFragment)
 
-        binding?.bottomNavigationView?.setOnItemReselectedListener{
+        binding?.bottomNavigationView?.setOnItemSelectedListener{
             when(it.itemId){
                 R.id.home-> replaceFragment(homeFragment)
                 R.id.chatList-> replaceFragment(chatListFragment)
                 R.id.myPage-> replaceFragment(myPageFragment)
             }
+            true
         }
     }
 
@@ -38,4 +39,11 @@ class MainActivity : AppCompatActivity() {
             commit()
         }
     }
+
+
+    override fun onDestroy() {
+        super.onDestroy()
+        binding = null
+    }
+
 }
