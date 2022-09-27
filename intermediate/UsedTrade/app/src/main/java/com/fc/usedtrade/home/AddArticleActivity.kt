@@ -12,6 +12,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isVisible
 import com.fc.usedtrade.databinding.ActivityAddArticleBinding
 import com.fc.usedtrade.util.DBKey.Companion.DB_ARTICLES
 import com.google.firebase.auth.FirebaseAuth
@@ -32,7 +33,7 @@ class AddArticleActivity : AppCompatActivity() {
     private val storage: FirebaseStorage by lazy {
         Firebase.storage
     }
-    private val articleDB: DatabaseReference by lazy{
+    private val articleDB: DatabaseReference by lazy {
         Firebase.database.reference.child(DB_ARTICLES)
     }
 
@@ -67,14 +68,56 @@ class AddArticleActivity : AppCompatActivity() {
             }
         }
 
-        binding?.submitButton?.setOnClickListener{
+        binding?.submitButton?.setOnClickListener {
             val title = binding?.titleEditText?.text.toString()
             val price = binding?.priceEditText?.text.toString()
             val sellerId = auth.currentUser?.uid.orEmpty()
-            val model = ArticleModel(sellerId, title, System.currentTimeMillis(), "$price 원", "")
-            articleDB.push().setValue(model)
-            finish()
+            showProgress()
+            if (selectedUri != null) {
+                val photoUri = selectedUri ?: return@setOnClickListener
+                uploadPhoto(photoUri,
+                    successHandler = { uri ->
+                        uploadArticle(sellerId, title, price, uri)
+                    },
+                    errorHandler = {
+                        Toast.makeText(this, "사진을 업로드에 실패했습니다.", Toast.LENGTH_SHORT).show()
+                        hideProgress()
+                    })
+            } else{
+                uploadArticle(sellerId, title, price, "")
+            }
+
+
         }
+    }
+
+    private fun uploadArticle(sellerId: String, title: String, price: String, imageUrl: String) {
+        val model = ArticleModel(sellerId, title, System.currentTimeMillis(), "$price 원", imageUrl)
+        articleDB.push().setValue(model)
+        hideProgress()
+        finish()
+    }
+
+    private fun uploadPhoto(photoUri: Uri, successHandler: (String) -> Unit, errorHandler: () -> Unit) {
+        val fileName = "${System.currentTimeMillis()}.png"
+
+        // storage 도 child를 통해 하위 디렉토리식으로 연결 할 수 있음
+        storage.reference.child("article/photo").child(fileName)
+            .putFile(photoUri).addOnCompleteListener{
+                if(it.isSuccessful){
+                    // 스토리지에 성공적으로 넣었을 시 다시 그 넣어진 url을 가져와 successhandler를 실행
+                    storage.reference.child("article/photo").child(fileName).downloadUrl
+                        .addOnSuccessListener { uri ->
+                            // 성공하면 핸들러로 가서 uri를 포함한 믈픔을 realtime db에 저장함
+                            successHandler(uri.toString())
+                        }.addOnFailureListener {
+                            // 실패시 uri없이 db에 물품정보 저장
+                            errorHandler()
+                        }
+                }  else{
+                    errorHandler()
+                }
+            }
     }
 
     private fun initImageLauncher() {
@@ -116,21 +159,28 @@ class AddArticleActivity : AppCompatActivity() {
         getGalleryImageLauncher.launch(intent)
     }
 
+    private fun showProgress() {
+        binding?.progressBar?.isVisible = true
+    }
+    private fun hideProgress() {
+        binding?.progressBar?.isVisible = false
+    }
+
     override fun onRequestPermissionsResult(
         requestCode: Int,
         permissions: Array<out String>,
         grantResults: IntArray
     ) {
-        when(requestCode) {
+        when (requestCode) {
             1000 -> {
-                if(grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED){
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // 권한 부여됨
                     navigatePhotos()
-                } else{
-                    Toast.makeText(this,"권한을 거부하셨습니다.", Toast.LENGTH_SHORT).show()
+                } else {
+                    Toast.makeText(this, "권한을 거부하셨습니다.", Toast.LENGTH_SHORT).show()
                 }
             }
-            else ->{
+            else -> {
                 //
             }
         }
