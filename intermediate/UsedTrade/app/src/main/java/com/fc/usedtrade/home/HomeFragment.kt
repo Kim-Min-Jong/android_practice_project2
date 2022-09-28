@@ -6,8 +6,11 @@ import androidx.fragment.app.Fragment
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fc.usedtrade.R
+import com.fc.usedtrade.chatlist.ChatListItem
 import com.fc.usedtrade.databinding.FragmentHomeBinding
+import com.fc.usedtrade.util.DBKey.Companion.CHILD_CHAT
 import com.fc.usedtrade.util.DBKey.Companion.DB_ARTICLES
+import com.fc.usedtrade.util.DBKey.Companion.DB_USERS
 import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
@@ -22,6 +25,7 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
     private var binding: FragmentHomeBinding? = null
     private lateinit var articleAdapter: ArticleAdapter
     private lateinit var articleDB: DatabaseReference
+    private lateinit var userDB: DatabaseReference
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
@@ -57,8 +61,42 @@ class HomeFragment : Fragment(R.layout.fragment_home) {
         // 이전 데이터가 그대로 보여지게 된다. 그렇기 때문에 list를 초기화하여 이전 데이터가 남아있는 문제를 해결한다.
         articleList.clear()
         articleDB = Firebase.database.reference.child(DB_ARTICLES)
+        userDB = Firebase.database.reference.child(DB_USERS)
 
-        articleAdapter = ArticleAdapter()
+        articleAdapter = ArticleAdapter {
+            //로그인을 한 상태
+            if(auth.currentUser != null){
+                // 내가 올린 물건이면
+                if(auth.currentUser?.uid != it.sellerId){
+                    val chatRoom = ChatListItem(
+                        auth.currentUser?.uid!!,
+                        it.sellerId,
+                        it.title,
+                        System.currentTimeMillis()
+                    )
+                    userDB.child(auth.currentUser?.uid!!)
+                        .child(CHILD_CHAT)
+                        .push()
+                        .setValue(chatRoom)
+                    userDB.child(it.sellerId)
+                        .child(CHILD_CHAT)
+                        .push()
+                        .setValue(chatRoom)
+
+                    Snackbar.make(view, "채팅방이 생성되었습니다. 채팅탭에서 확인해주세요", Snackbar.LENGTH_SHORT).show()
+                }
+                // 내가 올린게 아니면
+                else {
+                    Snackbar.make(view, "내가 올린 아이템입니다.", Snackbar.LENGTH_SHORT).show()
+                }
+            }
+            // 안한 상태
+            else{
+                Snackbar.make(view, "로그인 후 사용해주세요", Snackbar.LENGTH_SHORT).show()
+            }
+
+
+        }
 
 
         binding?.articleRecyclerView?.layoutManager = LinearLayoutManager(context)
