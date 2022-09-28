@@ -1,10 +1,12 @@
 package com.fc.usedtrade.chatlist
 
+import android.content.Intent
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.fc.usedtrade.R
+import com.fc.usedtrade.chatdetail.ChatRoomActivity
 import com.fc.usedtrade.databinding.FragmentChatListBinding
 import com.fc.usedtrade.util.DBKey.Companion.CHILD_CHAT
 import com.fc.usedtrade.util.DBKey.Companion.DB_USERS
@@ -30,8 +32,13 @@ class ChatListFragment : Fragment(R.layout.fragment_chat_list) {
         super.onViewCreated(view, savedInstanceState)
         binding = FragmentChatListBinding.bind(view)
 
-        chatListAdapter = ChatListAdapter {
+        chatListAdapter = ChatListAdapter { item ->
             // 채팅방으로 이동하는 로직
+            context?.let{
+                val intent = Intent(it, ChatRoomActivity::class.java)
+                intent.putExtra("chatKey", item.key)
+                startActivity(intent)
+            }
         }
 
         chatRoomList.clear()
