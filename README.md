@@ -16,3 +16,4 @@ main 브랜치에는 그 날 공부한 것 정리한 Readme를 링크할 예정(
 [intermediate - Alarm app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/AlarmApp)  
 [intermediate - Book Review 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/BookReview)  
 [intermediate - Tinder App 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/Tinder)  
+[intermediate - 중고거래 app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/UsedTrade)  
