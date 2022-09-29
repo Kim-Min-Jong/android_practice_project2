@@ -1,8 +1,13 @@
 package com.fc.airbnb
 
+import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.widget.Toast
 import com.fc.airbnb.databinding.ActivityMainBinding
+import com.fc.airbnb.model.HouseDto
+import com.fc.airbnb.model.HouseModel
+import com.fc.airbnb.service.HouseService
 import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.CameraUpdate
 import com.naver.maps.map.LocationTrackingMode
@@ -10,6 +15,12 @@ import com.naver.maps.map.NaverMap
 import com.naver.maps.map.OnMapReadyCallback
 import com.naver.maps.map.overlay.Marker
 import com.naver.maps.map.util.FusedLocationSource
+import com.naver.maps.map.util.MarkerIcons
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity(),OnMapReadyCallback {
     private var binding: ActivityMainBinding? = null
@@ -51,9 +62,52 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback {
         naverMap.locationSource = locationSource
 
         // 마커 찍기
-        val marker = Marker()
-        marker.position = LatLng(37.123123,127.123123)
-        marker.map = naverMap
+//        val marker = Marker()
+//        marker.position = LatLng(37.123123,127.123123)
+//        marker.map = naverMap
+
+        getHouseListFromApi()
+    }
+
+    private fun getHouseListFromApi() {
+        val retrofit = Retrofit.Builder()
+            .baseUrl("https://run.mocky.io/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+
+        retrofit.create(HouseService::class.java).also{
+            it.getHouseList()
+                .enqueue(object: Callback<HouseDto> {
+                    override fun onResponse(call: Call<HouseDto>, response: Response<HouseDto>) {
+                        if(response.isSuccessful.not()){
+                            // 실패 처리 구현
+                            Toast.makeText(this@MainActivity, "데이터를 불러오지 못했습니다.", Toast.LENGTH_SHORT).show()
+                            return
+                        }
+                        response.body()?.let{ dto ->
+                            updateMarker(dto.items)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<HouseDto>, t: Throwable) {
+                        // 실패 처리 구현
+                    }
+
+                })
+        }
+
+    }
+
+    private fun updateMarker(houses: List<HouseModel>) {
+        houses.forEach {
+            val marker = Marker()
+            marker.position = LatLng(it.lat, it.lng)
+            marker.map = naverMap
+            marker.tag = it.id
+            marker.icon = MarkerIcons.BLACK
+            marker.iconTintColor = Color.RED
+            // 마커클릭리스너 추가
+        }
     }
 
     // 권한 요청 후 실행
