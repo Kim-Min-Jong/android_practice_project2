@@ -1,17 +1,22 @@
 package com.fc.airbnb.adapter
 
+import android.content.Context
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.bitmap.CenterCrop
+import com.bumptech.glide.load.resource.bitmap.RoundedCorners
+import com.fc.airbnb.databinding.ItemHouseBinding
 import com.fc.airbnb.databinding.ItemHouseDetailForViewpagerBinding
 import com.fc.airbnb.model.HouseModel
 
-class HouseViewPagerAdapter(val itemClicked: (HouseModel) -> Unit): ListAdapter<HouseModel, HouseViewPagerAdapter.ViewHolder>(diffUtil) {
+class HouseListAdapter(val itemClicked: (HouseModel) -> Unit): ListAdapter<HouseModel, HouseListAdapter.ViewHolder>(diffUtil) {
 
-    inner class ViewHolder(private val binding: ItemHouseDetailForViewpagerBinding): RecyclerView.ViewHolder(binding.root){
+    inner class ViewHolder(private val binding: ItemHouseBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(houseModel: HouseModel){
             binding.titleTextView.text = houseModel.title
             binding.priceTextView.text = houseModel.price
@@ -21,15 +26,20 @@ class HouseViewPagerAdapter(val itemClicked: (HouseModel) -> Unit): ListAdapter<
             }
             Glide.with(binding.thumbnailImageView.context)
                 .load(houseModel.imageUrl)
+                .transform(CenterCrop(), RoundedCorners(dp2px(binding.thumbnailImageView.context, 12)))
                 .into(binding.thumbnailImageView)
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        return ViewHolder(ItemHouseDetailForViewpagerBinding.inflate(LayoutInflater.from(parent.context), parent, false))
+        return ViewHolder(ItemHouseBinding.inflate(LayoutInflater.from(parent.context), parent, false))
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.bind(currentList[position])
+    }
+
+    private fun dp2px(context: Context, dp: Int): Int{
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp.toFloat(), context.resources.displayMetrics).toInt()
     }
     companion object {
 

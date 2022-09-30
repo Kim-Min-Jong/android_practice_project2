@@ -4,6 +4,8 @@ import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.widget.Toast
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.fc.airbnb.adapter.HouseListAdapter
 import com.fc.airbnb.adapter.HouseViewPagerAdapter
 import com.fc.airbnb.databinding.ActivityMainBinding
 import com.fc.airbnb.model.HouseDto
@@ -30,6 +32,9 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback {
     private val viewPagerAdapter = HouseViewPagerAdapter{
 
     }
+    private val recyclerViewAdapter = HouseListAdapter{
+
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -44,6 +49,9 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback {
         binding?.mapView?.getMapAsync(this)
 
         binding?.houseViewPager?.adapter = viewPagerAdapter
+
+        binding?.included?.recyclerView?.layoutManager = LinearLayoutManager(this)
+        binding?.included?.recyclerView?.adapter = recyclerViewAdapter
     }
 
     // OnMapReadyCallback의 실 구현체 (지도 조작)
@@ -60,7 +68,9 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback {
 
         //현 위치 버튼 생성 및 현 위치 이동(권한 필요)
         val uiSetting = naverMap.uiSettings
-        uiSetting.isLocationButtonEnabled = true
+        uiSetting.isLocationButtonEnabled = false
+        // 버튼위치 이동 및 바인딩딩
+       binding?.currentLocation?.map = naverMap
 
         //location service 등록  (권한 생성)
         locationSource = FusedLocationSource(this@MainActivity, LOCATION_PERMISSION_REQUEST_CODE)
@@ -92,6 +102,7 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback {
                         response.body()?.let{ dto ->
                             updateMarker(dto.items)
                             viewPagerAdapter.submitList(dto.items)
+                            recyclerViewAdapter.submitList(dto.items)
                         }
                     }
 
