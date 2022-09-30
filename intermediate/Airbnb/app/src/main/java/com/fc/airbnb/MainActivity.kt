@@ -1,5 +1,6 @@
 package com.fc.airbnb
 
+import android.content.Intent
 import android.graphics.Color
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
@@ -29,10 +30,11 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback, Overlay.OnClickList
     private lateinit var naverMap: NaverMap
     private lateinit var locationSource: FusedLocationSource
     private val viewPagerAdapter = HouseViewPagerAdapter{
-
+        shareHouse(it)
     }
-    private val recyclerViewAdapter = HouseListAdapter{
 
+    private val recyclerViewAdapter = HouseListAdapter{
+        shareHouse(it)
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -114,6 +116,7 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback, Overlay.OnClickList
                             updateMarker(dto.items)
                             viewPagerAdapter.submitList(dto.items)
                             recyclerViewAdapter.submitList(dto.items)
+                            binding?.included?.bottomSheetTitleTextView?.text = "${dto.items.size} 개의 숙소"
                         }
                     }
 
@@ -142,7 +145,14 @@ class MainActivity : AppCompatActivity(),OnMapReadyCallback, Overlay.OnClickList
             marker.onClickListener = this
         }
     }
-
+    private fun shareHouse(model: HouseModel) {
+        val intent = Intent().apply{
+            action = Intent.ACTION_SEND
+            putExtra(Intent.EXTRA_TEXT, "[지금 이 가격에 예약하세요!!] ${model.title} ${model.price} 사진보기: ${model.imageUrl}")
+            type = "text/plain"
+        }
+        startActivity(Intent.createChooser(intent, null))
+    }
     // 권한 요청 후 실행
     override fun onRequestPermissionsResult(
         requestCode: Int,
