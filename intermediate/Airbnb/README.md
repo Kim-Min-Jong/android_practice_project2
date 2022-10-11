@@ -85,7 +85,7 @@ Airbnb app
 >```
 
 
-##**FrameLayout** 알아보기 [공식문서](https://developer.android.com/reference/android/widget/FrameLayout?hl=en)
+## **FrameLayout** 알아보기 [공식문서](https://developer.android.com/reference/android/widget/FrameLayout?hl=en)
 > FrameLayout은 여러개의 뷰 위젯들을 중첩하고, 그 중 하나를 맨 위에 표시 할 때
 > 사용하는 레이아웃이다. 이렇게 여러뷰를 겹치게 배치할수 있는 프레임 레이아웃의 특징이,
 > 뷰 위젯을 겹치지 않고 순서대로 배치하는 LinearLayout과 가장 큰 차이점이다.
@@ -96,7 +96,7 @@ Airbnb app
 > 사용은 xml의 layout을 사용하듯이 사용하면 된다.
 > 다양한 속성은 공식문서를 참고하면 좋을 것 같다.
 
-##**CoordinatorLayout** 사용하기 + **BottomSheetBehavior** 사용하기
+## **CoordinatorLayout** 사용하기 + **BottomSheetBehavior** 사용하기
 > **CoordinatorLayout**은 FrameLayout을 기반으로 둔 레이아웃으로 주요 2가지 기능이 있다.
 > 1. 최상위 Decor뷰로써의 사용
 > 2. 자식 뷰들간의 인터렉션을 위한 컨테이너로써의 사용
@@ -153,7 +153,7 @@ Airbnb app
 
 
 
-##**ViewPager2** 사용하기
+## **ViewPager2** 사용하기
 > [복습](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/TodayQuotes#view-pager2)  
 > **사용 시 주의점**  
 > 내부에 들어가는 레이아웃이 고정값이 아니라 match_parent를 주어야 정상동작한다.  
@@ -161,7 +161,7 @@ Airbnb app
 > 기기별로 실제 가지는 높이가 다르게 나타날 수 있기 때문이다.
 
 
-##**Retrofit2** 사용하기
+## **Retrofit2** 사용하기
 [복습 기본 사용법](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/BookReview#retrofit2-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0-api-%ED%98%B8%EC%B6%9C)
 
 >**Mocky를 통해 Mock API와 함께 사용하기**  
@@ -184,7 +184,7 @@ Airbnb app
 
 
 
-##**Glide** 사용하기
+## **Glide** 사용하기
 [복습](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/BookReview#glide-%EC%82%AC%EC%9A%A9%ED%95%98%EA%B8%B0%EC%9D%B4%EB%AF%B8%EC%A7%80-%EB%A1%9C%EB%94%A9-%EB%9D%BC%EC%9D%B4%EB%B8%8C%EB%9F%AC%EB%A6%AC)
 
 
