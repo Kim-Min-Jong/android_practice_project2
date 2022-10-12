@@ -3,6 +3,8 @@ package com.fc.youtubeapp
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import androidx.recyclerview.widget.LinearLayoutManager
+import com.fc.youtubeapp.adapter.VideoAdapter
 import com.fc.youtubeapp.databinding.ActivityMainBinding
 import com.fc.youtubeapp.dto.VideoDto
 import com.fc.youtubeapp.service.VideoService
@@ -14,6 +16,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
     var binding: ActivityMainBinding? = null
+    private lateinit var videoAdapter: VideoAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -21,6 +24,14 @@ class MainActivity : AppCompatActivity() {
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, PlayerFragment())
             .commit()
+
+        videoAdapter = VideoAdapter()
+
+        binding?.mainRecyclerView?.apply {
+            adapter = videoAdapter
+            layoutManager = LinearLayoutManager(context)
+        }
+
         getVideoList()
     }
 
@@ -42,8 +53,9 @@ class MainActivity : AppCompatActivity() {
                         Log.d("MainActivity"," Response fail1")
                         return
                     }
-                    response.body()?.let{
+                    response.body()?.let{ videoDto ->
                         Log.d("MainActivity"," Response success")
+                        videoAdapter.submitList(videoDto.videos)
                     }
                 }
 
