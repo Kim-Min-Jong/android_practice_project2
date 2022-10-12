@@ -12,7 +12,7 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        binding = FragmentPlayerBinding.inflate(layoutInflater)
+        binding = FragmentPlayerBinding.bind(view)
 
         binding?.playerMotionLayout?.setTransitionListener(object :
             MotionLayout.TransitionListener {
@@ -29,8 +29,9 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
                 endId: Int,
                 progress: Float
             ) {
-                binding?.let{
-                    (activity as MainActivity).also{
+                binding?.let {
+                    (activity as MainActivity).also {
+                        println(progress)
                         it.binding?.mainMotionLayout?.progress = abs(progress)
                     }
                 }
