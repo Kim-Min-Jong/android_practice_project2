@@ -25,7 +25,13 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.fragmentContainer, PlayerFragment())
             .commit()
 
-        videoAdapter = VideoAdapter()
+        videoAdapter = VideoAdapter{ url, title ->
+            // 프래그먼트 매니저에서 프래그먼트를 찾아서(find) 사용할 프래그먼트를 가져온 다음 형변환을 통해
+            // 해당 프래그먼트에 접근할 수 있음음
+            supportFragmentManager.fragments.find{ it is PlayerFragment }?.let{
+                (it as PlayerFragment).play(url, title)
+            }
+        }
 
         binding?.mainRecyclerView?.apply {
             adapter = videoAdapter

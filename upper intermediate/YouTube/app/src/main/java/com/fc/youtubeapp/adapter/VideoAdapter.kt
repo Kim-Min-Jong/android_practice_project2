@@ -9,7 +9,7 @@ import com.bumptech.glide.Glide
 import com.fc.youtubeapp.databinding.ItemVideoBinding
 import com.fc.youtubeapp.model.VideoModel
 
-class VideoAdapter: ListAdapter<VideoModel, VideoAdapter.ViewHolder>(diffUtil) {
+class VideoAdapter(val callback:(String, String)-> Unit): ListAdapter<VideoModel, VideoAdapter.ViewHolder>(diffUtil) {
 
     inner class ViewHolder(private val binding: ItemVideoBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(item: VideoModel){
@@ -20,7 +20,10 @@ class VideoAdapter: ListAdapter<VideoModel, VideoAdapter.ViewHolder>(diffUtil) {
                 .load(item.thumb)
                 .into(binding.thumbnailImageView)
 
-
+            // 리사이클러뷰 아이템 클릭 시 영상이 나올수 있게 함
+            binding.root.setOnClickListener {
+                callback(item.sources, item.title)
+            }
         }
     }
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
