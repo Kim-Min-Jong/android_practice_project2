@@ -19,7 +19,9 @@ class MainActivity : AppCompatActivity() {
     private lateinit var videoAdapter: VideoAdapter
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+
+        setContentView(binding?.root)
 
         supportFragmentManager.beginTransaction()
             .replace(R.id.fragmentContainer, PlayerFragment())
@@ -35,7 +37,7 @@ class MainActivity : AppCompatActivity() {
 
         binding?.mainRecyclerView?.apply {
             adapter = videoAdapter
-            layoutManager = LinearLayoutManager(context)
+            layoutManager = LinearLayoutManager(this@MainActivity)
         }
 
         getVideoList()
