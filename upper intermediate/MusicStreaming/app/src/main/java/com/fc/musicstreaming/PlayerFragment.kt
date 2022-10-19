@@ -12,6 +12,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.fc.musicstreaming.adapter.PlayListAdapter
 import com.fc.musicstreaming.databinding.FragmentPlayerBinding
 import com.fc.musicstreaming.model.MusicModel
+import com.fc.musicstreaming.model.PlayerModel
 import com.fc.musicstreaming.service.webCrawling
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
@@ -19,7 +20,7 @@ import com.google.android.exoplayer2.Player
 
 class PlayerFragment : Fragment(R.layout.fragment_player) {
     private var binding: FragmentPlayerBinding? = null
-    private var isWatchedPlayListView = true
+    private var model = PlayerModel()
     private lateinit var playListAdapter: PlayListAdapter
     private var mainActivity: MainActivity? = null
     private var player: ExoPlayer? = null
@@ -66,6 +67,13 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
                         binding.playControlImageView.setImageResource(R.drawable.ic_baseline_play_arrow_48)
                     }
                 }
+
+                override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
+                    super.onMediaItemTransition(mediaItem, reason)
+                    val newIndex = mediaItem?.mediaId ?: return
+                    model.currentPosition = newIndex.toInt()
+                    playListAdapter.submitList(model.getAdapterModels())
+                }
             })
         }
     }
@@ -73,6 +81,7 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
     private fun initRecyclerView() {
         playListAdapter = PlayListAdapter {
             // 음악 재생
+            playMusic(it)
         }
         binding?.playListRecyclerView?.apply {
             adapter = playListAdapter
@@ -82,14 +91,16 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
 
     private fun initPlayListButton() {
         binding?.playlistImageView?.setOnClickListener {
-            //만약 서버에서 데이터가 다 불러오지 못했을 때
+            //만약 서버에서 데이터가 다 불러오지 못했을 때 재생하지 않음
+            if(model.currentPosition == -1)
+                return@setOnClickListener
 
 
             // 플레이리스트 뷰 전환을 뷰그룹을의 visibility로 제어
-            binding?.playerViewGroup?.isVisible = isWatchedPlayListView
-            binding?.playListViewGroup?.isVisible = isWatchedPlayListView.not()
+            binding?.playerViewGroup?.isVisible = model.isWatchedPlayListView
+            binding?.playListViewGroup?.isVisible = model.isWatchedPlayListView.not()
 
-            isWatchedPlayListView = !isWatchedPlayListView
+            model.isWatchedPlayListView = !model.isWatchedPlayListView
         }
     }
 
@@ -104,10 +115,12 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
             }
         }
         binding?.skipNextImageView?.setOnClickListener {
-
+            val nextMusic = model.nextMusic() ?: return@setOnClickListener
+            playMusic(nextMusic)
         }
         binding?.skipPrevImageView?.setOnClickListener {
-
+            val prevMusic = model.prevMusic() ?: return@setOnClickListener
+            playMusic(prevMusic)
         }
     }
 
@@ -116,13 +129,11 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
             val list = webCrawling()
             Log.e("MainActivity", list.toString())
 
-            list?.let {
-                val modelList = it.musics.mapIndexed { idx, entity ->
-                    entity.mapper(idx.toLong())
-                }
+            list.let {
+                model = it.mapper()
                 mainActivity?.runOnUiThread {
-                    setMusicList(modelList)
-                    playListAdapter.submitList(modelList)
+                    setMusicList(model.getAdapterModels())
+                    playListAdapter.submitList(model.getAdapterModels())
                 }
             }
         }.start()
@@ -139,7 +150,16 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
                     .build()
             })
             player?.prepare()
-            player?.play()
+        }
+    }
+
+    private fun playMusic(musicModel: MusicModel) {
+        // 인덱스를 통해서 MediaItem의 리스트를 다음으로 바꿔가면서 재생할 수 있음
+        // 인덱스는 현재 음악의 위치
+        model.updateCurrentPosition(musicModel)
+        player?.apply{
+            seekTo(model.currentPosition, 0)
+            play()
         }
     }
 
