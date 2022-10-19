@@ -15,10 +15,6 @@ class MainActivity : AppCompatActivity() {
             .replace(R.id.fragmentContainer, PlayerFragment.newInstance())
             .commit()
 
-        Thread {
-            val list = webCrawling()
-            Log.e("MainActivity", list.toString())
-        }.start()
 
     }
 }
