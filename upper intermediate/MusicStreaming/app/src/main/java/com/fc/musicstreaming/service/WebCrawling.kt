@@ -3,10 +3,11 @@ package com.fc.musicstreaming.service
 import android.util.Log
 import org.jsoup.Jsoup
 import java.lang.StringBuilder
+import java.security.SecureRandom
 
 
 fun webCrawling(): MusicDto {
-    val randomPage = (1..61).random()
+    val randomPage = SecureRandom().nextInt(61) + 1
     Log.e("page", randomPage.toString())
     val url = "https://ncs.io/music?page=${randomPage}"
     val doc = Jsoup.connect(url).get()

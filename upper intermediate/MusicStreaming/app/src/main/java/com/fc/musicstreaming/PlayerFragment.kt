@@ -7,8 +7,10 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.SeekBar
 import androidx.core.view.isVisible
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bumptech.glide.Glide
 import com.fc.musicstreaming.adapter.PlayListAdapter
 import com.fc.musicstreaming.databinding.FragmentPlayerBinding
 import com.fc.musicstreaming.model.MusicModel
@@ -17,6 +19,7 @@ import com.fc.musicstreaming.service.webCrawling
 import com.google.android.exoplayer2.ExoPlayer
 import com.google.android.exoplayer2.MediaItem
 import com.google.android.exoplayer2.Player
+import java.util.concurrent.TimeUnit
 
 class PlayerFragment : Fragment(R.layout.fragment_player) {
     private var binding: FragmentPlayerBinding? = null
@@ -24,7 +27,9 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
     private lateinit var playListAdapter: PlayListAdapter
     private var mainActivity: MainActivity? = null
     private var player: ExoPlayer? = null
-
+    private val updateSeekRunnable = Runnable{
+        updateSeek()
+    }
 
     override fun onAttach(context: Context) {
         super.onAttach(context)
@@ -46,9 +51,25 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
         initPlayView()
         initPlayListButton()
         initPlayControlButtons()
+        initSeekBar()
         initRecyclerView()
         getVideoListFromWeb()
 
+    }
+
+    private fun initSeekBar() {
+        binding?.playListSeekBar?.setOnTouchListener { _, _ ->
+            false
+        }
+        binding?.playerSeekBar?.setOnSeekBarChangeListener(object: SeekBar.OnSeekBarChangeListener{
+            override fun onProgressChanged(p0: SeekBar?, p1: Int, p2: Boolean) {}
+
+            override fun onStartTrackingTouch(p0: SeekBar?) {}
+
+            override fun onStopTrackingTouch(p0: SeekBar) {
+                player?.seekTo((p0.progress * 1000).toLong())
+            }
+        })
     }
 
     private fun initPlayView() {
@@ -68,13 +89,73 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
                     }
                 }
 
+                // 미디어 아이템이 변하면 -- 음악이 바뀌면
                 override fun onMediaItemTransition(mediaItem: MediaItem?, reason: Int) {
                     super.onMediaItemTransition(mediaItem, reason)
+                    // 해당 음악의 인덱스를 가져와
                     val newIndex = mediaItem?.mediaId ?: return
+                    // 현재 인덱스를 바꿔주고
                     model.currentPosition = newIndex.toInt()
+                    updatePlayerView(model.currentMusicModel())
+                    // 바뀐 리스트를 리사이클러뷰에 적용
                     playListAdapter.submitList(model.getAdapterModels())
                 }
+
+                // 플레이어의 상태가 바뀔 때 실행되는 콜백 (재생, 일시정지.. 등)
+                override fun onPlaybackStateChanged(playbackState: Int) {
+                    super.onPlaybackStateChanged(playbackState)
+                    updateSeek()
+                }
             })
+        }
+    }
+
+    private fun updateSeek() {
+        val player = this.player ?: return
+        val duration = if(player.duration >= 0) player.duration else 0
+        val position = player.currentPosition
+
+        // UI 업데이트
+        updateSeekUi(duration, position)
+
+        // 재생중이라면 1초뒤에 다시 재귀호출로 갱신, 재생중이 아니면 실행x
+        view?.removeCallbacks(updateSeekRunnable)
+        val state = player.playbackState
+        if(state != Player.STATE_IDLE && state != Player.STATE_ENDED) {
+            view?.postDelayed(updateSeekRunnable, 1000)
+        }
+    }
+
+    private fun updateSeekUi(duration: Long, position: Long) {
+        binding?.let{
+            it.playListSeekBar.max = (duration / 1000).toInt()
+            it.playListSeekBar.progress = (position / 1000).toInt()
+
+            it.playerSeekBar.max = (duration / 1000).toInt()
+            it.playerSeekBar.progress = (position / 1000).toInt()
+
+            it.playTimeTextView.text = String.format("%02d:%02d",
+                    TimeUnit.MINUTES.convert(position, TimeUnit.MILLISECONDS),
+                (position / 1000) % 60
+                )
+            it.totalTimeTextView.text = String.format("%02d:%02d",
+                TimeUnit.MINUTES.convert(duration, TimeUnit.MILLISECONDS),
+                (duration / 1000) % 60
+            )
+        }
+    }
+
+    // 재생목록 바인딩
+   private fun updatePlayerView(currentMusicModel: MusicModel?) {
+        currentMusicModel ?: return
+
+        binding?.let{
+            it.trackTextView.text = currentMusicModel.track
+            it.artistTextView.text = currentMusicModel.artist
+            Glide.with(it.coverImageView.context)
+                .load(currentMusicModel.coverUrl)
+                .into(it.coverImageView)
+
         }
     }
 
@@ -163,10 +244,18 @@ class PlayerFragment : Fragment(R.layout.fragment_player) {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+        player?.pause()
+        view?.removeCallbacks(updateSeekRunnable)
+    }
+
     override fun onDestroy() {
         super.onDestroy()
+        view?.removeCallbacks(updateSeekRunnable)
         binding = null
         mainActivity = null
+        player?.release()
         player = null
     }
 
