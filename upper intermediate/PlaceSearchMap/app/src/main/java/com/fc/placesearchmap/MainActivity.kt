@@ -9,6 +9,8 @@ import com.fc.placesearchmap.adapter.SearchRecyclerAdapter
 import com.fc.placesearchmap.databinding.ActivityMainBinding
 import com.fc.placesearchmap.model.LocationLatLngEntity
 import com.fc.placesearchmap.model.SearchResultEntity
+import com.fc.placesearchmap.response.search.Poi
+import com.fc.placesearchmap.response.search.Pois
 import com.fc.placesearchmap.util.RetrofitUtil
 import kotlinx.coroutines.*
 import java.lang.Exception
@@ -32,26 +34,25 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         initViews()
         bindViews()
         initData()
-        setData()
     }
 
     private fun initData() {
         adapter.notifyDataSetChanged()
     }
 
-    private fun setData() {
+    private fun setData(pois: Pois) {
         // 임시 데이터
-        val dataList = (0..10).map{
+        val dataList = pois.poi.map{
             SearchResultEntity(
-                "빌딩 $it",
-                "주소 $it",
-                LocationLatLngEntity(it.toFloat(), it.toFloat())
+                it.name ?: "빌딩명 없음",
+                makeMainAdress(it),
+                LocationLatLngEntity(it.noorLat, it.noorLon)
             )
         }
 
         // submitList
         adapter.setSearchResultList(dataList) {
-            Toast.makeText(this,"${it.fullAddress} ${it.name}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, it.name, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -75,11 +76,6 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         adapter = SearchRecyclerAdapter()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        binding = null
-    }
-
     private fun searchKeyword(keyWord: String) {
         // 메인컨텍스트에서 시작
         launch(coroutineContext){
@@ -92,12 +88,37 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
                         // 데이터 받기 성공시 다시 메인 컨텍스트 전환후 동작
                         withContext(Dispatchers.Main){
                             Log.e("Response", body.toString())
+                            body?.let{ searchResponse ->
+                                setData(searchResponse.searchPoiInfo.pois)
+                            }
                         }
                     }
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
+                Toast.makeText(this@MainActivity, "검색하는 과정에서 에러가 발생했습니다. : ${e.message}", Toast.LENGTH_SHORT).show()
             }
         }
+    }
+
+    private fun makeMainAdress(poi: Poi): String =
+        if (poi.secondNo?.trim().isNullOrEmpty()) {
+            (poi.upperAddrName?.trim() ?: "") + " " +
+                    (poi.middleAddrName?.trim() ?: "") + " " +
+                    (poi.lowerAddrName?.trim() ?: "") + " " +
+                    (poi.detailAddrName?.trim() ?: "") + " " +
+                    poi.firstNo?.trim()
+        } else {
+            (poi.upperAddrName?.trim() ?: "") + " " +
+                    (poi.middleAddrName?.trim() ?: "") + " " +
+                    (poi.lowerAddrName?.trim() ?: "") + " " +
+                    (poi.detailAddrName?.trim() ?: "") + " " +
+                    (poi.firstNo?.trim() ?: "") + " " +
+                    poi.secondNo?.trim()
+        }
+    override fun onDestroy() {
+        super.onDestroy()
+        binding = null
+        job.cancel()
     }
 }
