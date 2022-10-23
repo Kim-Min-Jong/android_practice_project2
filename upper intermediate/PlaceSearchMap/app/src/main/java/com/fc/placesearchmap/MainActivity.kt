@@ -1,10 +1,12 @@
 package com.fc.placesearchmap
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import androidx.core.view.isVisible
+import com.fc.placesearchmap.MapActivity.Companion.SEARCCH_RESULT_EXTRA_KEY
 import com.fc.placesearchmap.adapter.SearchRecyclerAdapter
 import com.fc.placesearchmap.databinding.ActivityMainBinding
 import com.fc.placesearchmap.model.LocationLatLngEntity
@@ -53,6 +55,10 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         // submitList
         adapter.setSearchResultList(dataList) {
             Toast.makeText(this, it.name, Toast.LENGTH_SHORT).show()
+            val intent = Intent(this, MapActivity::class.java).apply{
+                putExtra(SEARCCH_RESULT_EXTRA_KEY, it)
+            }
+            startActivity(intent)
         }
     }
 
