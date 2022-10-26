@@ -40,11 +40,13 @@ class MainActivity : AppCompatActivity() {
             if (binding?.scrollView?.scrollY!! > 150f.dpToPx(this).toInt()) {
                 if (isGatheringMotionAnimating.not()) {
                     binding?.gatheringDigitalThingsLayout?.transitionToEnd()
+                    binding?.gatheringDigitalThingsBackgroundMotionLayout?.transitionToEnd()
                     binding?.buttonShownMotionLayout?.transitionToEnd()
                 }
             } else {
                 if (isGatheringMotionAnimating.not()) {
                     binding?.gatheringDigitalThingsLayout?.transitionToStart()
+                    binding?.gatheringDigitalThingsBackgroundMotionLayout?.transitionToStart()
                     binding?.buttonShownMotionLayout?.transitionToStart()
                 }
             }
@@ -52,6 +54,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initScrollViewListener() {
+        binding?.scrollView?.smoothScrollTo(0, 0)
         binding?.gatheringDigitalThingsLayout?.setTransitionListener(object :
             MotionLayout.TransitionListener {
             override fun onTransitionStarted(
