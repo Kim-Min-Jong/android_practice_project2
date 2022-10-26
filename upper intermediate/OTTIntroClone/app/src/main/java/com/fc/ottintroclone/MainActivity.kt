@@ -30,6 +30,12 @@ class MainActivity : AppCompatActivity() {
         initAppBar()
         initInsetMargin()
 
+        initMotionLayoutListener()
+
+        initScrollViewListener()
+    }
+
+    private fun initMotionLayoutListener() {
         binding?.scrollView?.viewTreeObserver?.addOnScrollChangedListener {
             if (binding?.scrollView?.scrollY!! > 150f.dpToPx(this).toInt()) {
                 if (isGatheringMotionAnimating.not()) {
@@ -43,8 +49,11 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         }
+    }
 
-        binding?.gatheringDigitalThingsLayout?.setTransitionListener(object: MotionLayout.TransitionListener {
+    private fun initScrollViewListener() {
+        binding?.gatheringDigitalThingsLayout?.setTransitionListener(object :
+            MotionLayout.TransitionListener {
             override fun onTransitionStarted(
                 motionLayout: MotionLayout?,
                 startId: Int,
