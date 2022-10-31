@@ -1,5 +1,6 @@
 package com.fc.githubrepository
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -13,7 +14,7 @@ import java.util.*
 import kotlin.coroutines.CoroutineContext
 
 class MainActivity : AppCompatActivity(), CoroutineScope {
-    val job = Job()
+    private val job = Job()
     override val coroutineContext: CoroutineContext
         get() = Dispatchers.Main + job
     private var binding: ActivityMainBinding? = null
@@ -24,12 +25,24 @@ class MainActivity : AppCompatActivity(), CoroutineScope {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding?.root)
 
+        initViews()
+
         // mock data(임시데이터) 주입
         launch {
             addMockData()
             val githubRepositories = loadGithubRepositories()
             withContext(coroutineContext) {
                 Log.e("asd", githubRepositories.toString())
+            }
+        }
+    }
+
+    private fun initViews() = with(binding) {
+        this?.let{
+            searchButton.setOnClickListener {
+                startActivity(
+                    Intent(this@MainActivity, SearchActivity::class.java)
+                )
             }
         }
     }

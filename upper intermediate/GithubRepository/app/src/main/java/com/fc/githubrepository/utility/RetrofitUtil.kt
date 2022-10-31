@@ -28,6 +28,22 @@ object RetrofitUtil {
             .build()
     }
 
+    val githubApiService: GithubApiService by lazy { getGithubRetrofit().create(GithubApiService::class.java) }
+
+    private fun getGithubRetrofit(): Retrofit {
+        return Retrofit.Builder()
+            .baseUrl(Url.GITHUB_API_URL)
+            .addConverterFactory(
+                GsonConverterFactory.create(
+                    GsonBuilder()
+                        .setFieldNamingPolicy(FieldNamingPolicy.LOWER_CASE_WITH_UNDERSCORES)
+                        .create()
+                )
+            )
+            .client(buildOkHttpClient())
+            .build()
+    }
+
 
     private fun buildOkHttpClient(): OkHttpClient {
         val interceptor = HttpLoggingInterceptor()
