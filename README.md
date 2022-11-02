@@ -14,6 +14,7 @@ main 브랜치에는 그 날 공부한 것 정리한 Readme를 링크할 예정(
 [intermediate - Push Alarm Reciever 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/PushAlarmReciever)    
 [intermediate - Today Quotes 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/TodayQuotes)    
 [intermediate - Alarm app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/AlarmApp)  
+[intermediate - GithubRepositoty app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Upper_intermediate/upper%20intermediate/GithubRepository)  
 [intermediate - Book Review 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/BookReview)  
 [intermediate - Tinder App 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/Tinder)  
 [intermediate - 중고거래 app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/intermediate/intermediate/UsedTrade)    
