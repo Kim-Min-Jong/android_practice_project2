@@ -11,11 +11,15 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
 import com.google.android.gms.tasks.CancellationTokenSource
+import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 
 class MainActivity : AppCompatActivity() {
     private var binding: ActivityMainBinding? = null
     private lateinit var fusedLocationProviderClient: FusedLocationProviderClient
     private var cancellationTokenSource: CancellationTokenSource? = null
+    private val scope = MainScope()
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -24,6 +28,7 @@ class MainActivity : AppCompatActivity() {
         initVariables()
         requestLocationPermissions()
     }
+
 
     private fun requestLocationPermissions() {
         ActivityCompat.requestPermissions(
@@ -57,11 +62,19 @@ class MainActivity : AppCompatActivity() {
             finish()
         } else {
             // 실제 위치정보로 측정소 위치 가져오기 todo
-            fusedLocationProviderClient.getCurrentLocation(
-                Priority.PRIORITY_HIGH_ACCURACY,
-                cancellationTokenSource!!.token
-            ).addOnSuccessListener {
-                binding?.tv?.text = it.toString()
+            fetchAirQualityData()
+        }
+    }
+
+    @SuppressLint("MissingPermission")
+    private fun fetchAirQualityData() {
+        fusedLocationProviderClient.getCurrentLocation(
+            Priority.PRIORITY_HIGH_ACCURACY,
+            cancellationTokenSource!!.token
+        ).addOnSuccessListener {
+            binding?.tv?.text = it.toString()
+            scope.launch {
+
             }
         }
     }
@@ -70,6 +83,7 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
         binding = null
         cancellationTokenSource?.cancel()
+        scope.cancel()
     }
     companion object {
         private const val REQUEST_ACCESS_LOCATION_PERMISSIONS = 100
