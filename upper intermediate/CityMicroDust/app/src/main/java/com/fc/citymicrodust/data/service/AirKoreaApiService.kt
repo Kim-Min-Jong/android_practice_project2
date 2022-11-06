@@ -1,6 +1,7 @@
 package com.fc.citymicrodust.data.service
 
 import com.fc.citymicrodust.BuildConfig
+import com.fc.citymicrodust.data.model.airquality.AirQualityResponse
 import com.fc.citymicrodust.data.model.monitoringstation.MonitoringStationsResponse
 import retrofit2.Response
 import retrofit2.http.GET
@@ -14,4 +15,12 @@ interface AirKoreaApiService {
         @Query("tmX") tmX: Double,
         @Query("tmY") tmY: Double
     ): Response<MonitoringStationsResponse>
+
+    @GET("/B552584/ArpltnInforInqireSvc/getMsrstnAcctoRltmMesureDnsty?serviceKey=${BuildConfig.AIR_KOREA_SERVICE_KEY}"
+            + "&returnType=json"
+            + "&dataTerm=DAILY"
+            + "&ver=1.3")
+    suspend fun getRealtimeAirQualities(
+        @Query("stationName") stationName: String
+    ): Response<AirQualityResponse>
 }

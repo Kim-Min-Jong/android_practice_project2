@@ -1,6 +1,7 @@
 package com.fc.citymicrodust.data
 
 import com.fc.citymicrodust.BuildConfig
+import com.fc.citymicrodust.data.model.airquality.MeasuredValue
 import com.fc.citymicrodust.data.model.monitoringstation.MonitoringStation
 import com.fc.citymicrodust.data.service.AirKoreaApiService
 import com.fc.citymicrodust.data.service.KakaoLocalApiService
@@ -64,4 +65,12 @@ object Repository {
             ?.monitoringStations
             ?.minByOrNull { it?.tm ?: Double.MAX_VALUE  }
     }
+
+    suspend fun getLatestAirQualityData(stationName: String) : MeasuredValue? =
+        airKoreaApiService.getRealtimeAirQualities(stationName)
+            .body()
+            ?.response
+            ?.body
+            ?.measuredValues
+            ?.firstOrNull()
 }

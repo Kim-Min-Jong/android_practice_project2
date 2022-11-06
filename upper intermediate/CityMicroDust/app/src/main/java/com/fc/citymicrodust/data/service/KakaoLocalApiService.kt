@@ -10,7 +10,7 @@ import retrofit2.http.Query
 
 // 서버스 api 인터페이스
 interface KakaoLocalApiService {
-    @Headers("KakaoAK ${BuildConfig.KAKAO_API_KEY}")
+    @Headers("Authorization:KakaoAK ${BuildConfig.KAKAO_API_KEY}")
     @GET("/v2/local/geo/transcoord.json?output_coord=TM")
     suspend fun getTmCoordinates(
         @Query("x") longitude:Double,
