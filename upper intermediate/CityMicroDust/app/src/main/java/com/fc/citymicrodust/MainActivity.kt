@@ -6,6 +6,7 @@ import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
+import com.fc.citymicrodust.data.Repository
 import com.fc.citymicrodust.databinding.ActivityMainBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -58,7 +59,7 @@ class MainActivity : AppCompatActivity() {
             requestCode == REQUEST_ACCESS_LOCATION_PERMISSIONS &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED
 
-        if(!locationPermissionGranted){
+        if (!locationPermissionGranted) {
             finish()
         } else {
             // 실제 위치정보로 측정소 위치 가져오기 todo
@@ -72,9 +73,10 @@ class MainActivity : AppCompatActivity() {
             Priority.PRIORITY_HIGH_ACCURACY,
             cancellationTokenSource!!.token
         ).addOnSuccessListener {
-            binding?.tv?.text = it.toString()
             scope.launch {
-
+                val monitoringStation =
+                    Repository.getNearbyMonitoringStation(it.latitude, it.longitude)
+                binding?.tv?.text = monitoringStation?.stationName
             }
         }
     }
@@ -85,6 +87,7 @@ class MainActivity : AppCompatActivity() {
         cancellationTokenSource?.cancel()
         scope.cancel()
     }
+
     companion object {
         private const val REQUEST_ACCESS_LOCATION_PERMISSIONS = 100
     }
