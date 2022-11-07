@@ -3,9 +3,11 @@ package com.fc.citymicrodust
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
+import androidx.annotation.RequiresApi
 import androidx.core.app.ActivityCompat
 import com.fc.citymicrodust.data.Repository
 import com.fc.citymicrodust.data.model.airquality.Grade
@@ -47,6 +49,17 @@ class MainActivity : AppCompatActivity() {
         )
     }
 
+    @RequiresApi(Build.VERSION_CODES.Q)
+    private fun requestBackgroundLocationPermissions() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(
+                Manifest.permission.ACCESS_BACKGROUND_LOCATION
+            ),
+            REQUEST_BACKGROUND_ACCESS_LOCATION_PERMISSIONS
+        )
+    }
+
     private fun bindViews() {
         binding?.refresh?.setOnRefreshListener {
             fetchAirQualityData()
@@ -70,11 +83,23 @@ class MainActivity : AppCompatActivity() {
             requestCode == REQUEST_ACCESS_LOCATION_PERMISSIONS &&
                     grantResults[0] == PackageManager.PERMISSION_GRANTED
 
-        if (!locationPermissionGranted) {
-            finish()
-        } else {
-            // 실제 위치정보로 측정소 위치 가져오기 todo
-            fetchAirQualityData()
+        val backgroundLocationPermissionGranted =
+            requestCode == REQUEST_BACKGROUND_ACCESS_LOCATION_PERMISSIONS &&
+                    grantResults[0] == PackageManager.PERMISSION_GRANTED
+
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            if(!backgroundLocationPermissionGranted) {
+                requestBackgroundLocationPermissions()
+            } else {
+                fetchAirQualityData()
+            }
+        } else{
+            if (!locationPermissionGranted) {
+                finish()
+            } else {
+                // 실제 위치정보로 측정소 위치 가져오기 todo
+                fetchAirQualityData()
+            }
         }
     }
 
@@ -165,5 +190,6 @@ class MainActivity : AppCompatActivity() {
 
     companion object {
         private const val REQUEST_ACCESS_LOCATION_PERMISSIONS = 100
+        private const val REQUEST_BACKGROUND_ACCESS_LOCATION_PERMISSIONS = 100
     }
 }
