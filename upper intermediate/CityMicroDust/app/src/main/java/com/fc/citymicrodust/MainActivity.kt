@@ -7,6 +7,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.app.ActivityCompat
 import com.fc.citymicrodust.data.Repository
+import com.fc.citymicrodust.data.model.airquality.Grade
+import com.fc.citymicrodust.data.model.airquality.MeasuredValue
+import com.fc.citymicrodust.data.model.monitoringstation.MonitoringStation
 import com.fc.citymicrodust.databinding.ActivityMainBinding
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
@@ -79,10 +82,57 @@ class MainActivity : AppCompatActivity() {
                 val measuredValue =
                     Repository.getLatestAirQualityData(monitoringStation!!.stationName!!)
 
-                binding?.tv?.text = measuredValue.toString()
+                displayAirQualityData(monitoringStation, measuredValue!!)
             }
         }
     }
+
+    private fun displayAirQualityData(
+        monitoringStation: MonitoringStation,
+        measuredValue: MeasuredValue
+    ) {
+        binding?.measuringStationAddressTextView?.text = monitoringStation.addr
+        binding?.measuringStationName?.text = monitoringStation.stationName
+
+        (measuredValue.khaiGrade ?: Grade.UNKNOWN).let {
+            binding?.root?.setBackgroundResource(it.colorResId)
+            binding?.totalGradeLabelTextView?.text = it.label
+            binding?.totalGradeEmojiTextView?.text = it.emoji
+        }
+
+        with(measuredValue) {
+            binding?.fineDustInformationTextView?.text =
+                "미세먼지: $pm10Value ㎍/㎥ ${(pm10Grade ?: Grade.UNKNOWN).emoji}"
+            binding?.ultraFineDustInformationTextView?.text =
+                "초미세먼지: $pm25Value ㎍/㎥ ${(pm25Grade ?: Grade.UNKNOWN).emoji}"
+
+            binding?.let {
+                with(it.so2Item) {
+                    labelTextView.text = "아황산가스"
+                    gradeTextView.text = (so2Grade ?: Grade.UNKNOWN).toString()
+                    valueTextView.text = "$so2Value ppm"
+                }
+                with(it.coItem) {
+                    labelTextView.text = "일산화탄소"
+                    gradeTextView.text = (coGrade ?: Grade.UNKNOWN).toString()
+                    valueTextView.text = "$coValue ppm"
+                }
+
+                with(it.o3Item) {
+                    labelTextView.text = "오존"
+                    gradeTextView.text = (o3Grade ?: Grade.UNKNOWN).toString()
+                    valueTextView.text = "$o3Value ppm"
+                }
+
+                with(it.no2Item) {
+                    labelTextView.text = "이산화질소"
+                    gradeTextView.text = (no2Grade ?: Grade.UNKNOWN).toString()
+                    valueTextView.text = "$no2Value ppm"
+                }
+            }
+        }
+    }
+
 
     override fun onDestroy() {
         super.onDestroy()
