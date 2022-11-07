@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.content.pm.PackageManager
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
 import androidx.core.app.ActivityCompat
 import com.fc.citymicrodust.data.Repository
 import com.fc.citymicrodust.data.model.airquality.Grade
@@ -30,6 +31,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding?.root)
 
         initVariables()
+        bindViews()
         requestLocationPermissions()
     }
 
@@ -43,6 +45,12 @@ class MainActivity : AppCompatActivity() {
             ),
             REQUEST_ACCESS_LOCATION_PERMISSIONS
         )
+    }
+
+    private fun bindViews() {
+        binding?.refresh?.setOnRefreshListener {
+            fetchAirQualityData()
+        }
     }
 
     private fun initVariables() {
@@ -76,13 +84,23 @@ class MainActivity : AppCompatActivity() {
             Priority.PRIORITY_HIGH_ACCURACY,
             cancellationTokenSource!!.token
         ).addOnSuccessListener {
+            binding?.errorDescriptionTextView?.visibility = View.GONE
             scope.launch {
-                val monitoringStation =
-                    Repository.getNearbyMonitoringStation(it.latitude, it.longitude)
-                val measuredValue =
-                    Repository.getLatestAirQualityData(monitoringStation!!.stationName!!)
+                try {
+                    val monitoringStation =
+                        Repository.getNearbyMonitoringStation(it.latitude, it.longitude)
+                    val measuredValue =
+                        Repository.getLatestAirQualityData(monitoringStation!!.stationName!!)
 
-                displayAirQualityData(monitoringStation, measuredValue!!)
+                    displayAirQualityData(monitoringStation, measuredValue!!)
+                } catch (e: Exception) {
+                    binding?.errorDescriptionTextView?.visibility = View.VISIBLE
+                    binding?.contentLayout?.alpha = 0F
+                } finally {
+                    binding?.progressBar?.visibility = View.GONE
+                    binding?.refresh?.isRefreshing = false
+                }
+
             }
         }
     }
@@ -91,6 +109,10 @@ class MainActivity : AppCompatActivity() {
         monitoringStation: MonitoringStation,
         measuredValue: MeasuredValue
     ) {
+        binding?.contentLayout?.animate()
+            ?.alpha(1F)
+            ?.start()
+
         binding?.measuringStationAddressTextView?.text = monitoringStation.addr
         binding?.measuringStationName?.text = monitoringStation.stationName
 
