@@ -113,11 +113,19 @@ City MicroDust
 
 
 
-## Android Widget
+## Android Widget [공식문서](https://developer.android.com/guide/topics/appwidgets?hl=ko)
 > 휴대폰에 위젯을 만드는 작업이다.
 >
 > 먼저, 위젯이 될 뷰를 구성한다.
-> 뷰는 앱 레이아웃 구성하듯이 구성하면 된다.
+> ~~뷰는 앱 레이아웃 구성하듯이 구성하면 된다.~~
+> 
+> (2022-11-09 오후 7:02 수정)  
+> 레이아웃에 익숙한 경우 간단히 앱 위젯 레이아웃을 만들 수 있다.  
+> 하지만 앱 위젯 레이아웃은 모든 종류의 레이아웃 또는 뷰 위젯을 지원하지는 않는 ```RemoteViews```을 기반한다.  
+> 
+> **Remote Views** 지원 레이아웃
+> ```FrameLayout```, ```LinearLayout```, ```RelativeLayout```, ```GridLayout```  
+> 
 >
 > 그리고 xml 디렉토리에 ```appwidget-provider```속성으로 위젯의 설정 정보를 정의한다.
 > ```xml
