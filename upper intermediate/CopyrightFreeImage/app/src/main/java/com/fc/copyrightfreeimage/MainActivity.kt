@@ -1,6 +1,7 @@
 package com.fc.copyrightfreeimage
 
 import android.Manifest
+import android.app.WallpaperManager
 import android.content.ContentValues
 import android.content.Context
 import android.content.pm.PackageManager
@@ -133,6 +134,25 @@ class MainActivity : AppCompatActivity() {
                         transition: Transition<in Bitmap>?
                     ) {
                         saveBitmapToMediaStore(resource)
+
+                        // 사진을 배경화면으로 지정하기위해 WallPaperManager 사용
+                        val wallPaperManager = WallpaperManager.getInstance(this@MainActivity)
+
+                        val snackBar = Snackbar.make(binding?.root as View, "다운로드 완료", Snackbar.LENGTH_SHORT)
+
+                        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N &&
+                            wallPaperManager.isWallpaperSupported &&
+                                wallPaperManager.isSetWallpaperAllowed) {
+                            snackBar.setAction("배경 화면으로 저장") {
+                                try {
+                                    wallPaperManager.setBitmap(resource)
+                                } catch (e: Exception) {
+                                    Snackbar.make(binding?.root as View, "배경화면 저장 실패..", Snackbar.LENGTH_SHORT)
+                                }
+                            }
+                            snackBar.duration = Snackbar.LENGTH_INDEFINITE
+                        }
+                        snackBar.show()
                     }
 
                     override fun onLoadCleared(placeholder: Drawable?) = Unit
@@ -189,7 +209,7 @@ class MainActivity : AppCompatActivity() {
             resolver.update(imageUri, imageDetails, null, null)
         }
 
-        Snackbar.make(binding?.root as View, "다운로드 완료", Snackbar.LENGTH_SHORT).show()
+
     }
 
     private fun requestStoragePermission() {
