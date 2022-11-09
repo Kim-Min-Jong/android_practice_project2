@@ -22,4 +22,5 @@ main 브랜치에는 그 날 공부한 것 정리한 Readme를 링크할 예정(
 [Upper intermediate - MusicStreaming app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Upper_intermediate/upper%20intermediate/MusicStreaming)  
 [Upper intermediate - PlaceSearch app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Upper_intermediate/upper%20intermediate/PlaceSearchMap)  
 [Upper intermediate - OTTIntroClone app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Upper_intermediate/upper%20intermediate/OTTIntroClone)  
-[Upper intermediate - GithubRepositoty app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Upper_intermediate/upper%20intermediate/GithubRepository)      
+[Upper intermediate - GithubRepositoty app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Upper_intermediate/upper%20intermediate/GithubRepository)     
+[Upper intermediate - CityMicroDust app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Upper_intermediate/upper%20intermediate/CityMicroDust)       
