@@ -13,9 +13,17 @@ import com.fc.copyrightfreeimage.databinding.ItemPhotoBinding
 class PhotoAdapter : RecyclerView.Adapter<PhotoAdapter.ViewHolder>() {
 
     var photos: List<PhotoResponse> = emptyList()
+    var onClickPhoto: (PhotoResponse) -> Unit = {}
 
     inner class ViewHolder(private val binding: ItemPhotoBinding) :
         RecyclerView.ViewHolder(binding.root) {
+
+        init{
+            binding.root.setOnClickListener {
+                onClickPhoto(photos[adapterPosition])
+            }
+        }
+
         fun bind(photo: PhotoResponse) {
             // 이미지 조정을 위해 뷰들의 값 불러오기
             val dimensionRatio = photo.height / photo.width.toFloat()
