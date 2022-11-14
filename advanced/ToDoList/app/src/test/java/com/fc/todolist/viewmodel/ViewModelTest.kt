@@ -1,4 +1,4 @@
-package com.fc.todolist.viewmodel.todo
+package com.fc.todolist.viewmodel
 
 import android.app.Application
 import androidx.lifecycle.LiveData
@@ -21,7 +21,7 @@ import org.mockito.junit.MockitoJUnit
 import org.mockito.junit.MockitoRule
 
 @ExperimentalCoroutinesApi
-internal open class ViewModelTest: KoinTest {
+internal abstract class ViewModelTest: KoinTest {
 
     // 규칙 설정
     @get:Rule
