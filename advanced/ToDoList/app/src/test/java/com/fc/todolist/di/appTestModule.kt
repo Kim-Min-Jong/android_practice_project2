@@ -16,7 +16,7 @@ internal val appTestModule = module {
         ListViewModel(get(), get(), get())
     }
     viewModel { (detailMode: DetailMode, id: Long) ->
-        DetailViewModel(detailMode = detailMode, id = id, get(), get(), get())
+        DetailViewModel(detailMode = detailMode, id = id, get(), get(), get(), get())
     }
 
     //UseCase 등록
