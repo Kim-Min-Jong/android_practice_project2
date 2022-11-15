@@ -8,6 +8,7 @@ import com.fc.todolist.data.entity.ToDoEntity
 import com.fc.todolist.domain.todo.DeleteAllToDoItemUseCase
 import com.fc.todolist.domain.todo.GetToDoListUseCase
 import com.fc.todolist.domain.todo.UpdateToDoListUseCase
+import com.fc.todolist.presentation.BaseViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
@@ -21,12 +22,12 @@ internal class ListViewModel(
     private val getToDoListUseCase: GetToDoListUseCase,
     private val updateToDoListUseCase: UpdateToDoListUseCase,
     private val deleteAllToDoItemUseCase: DeleteAllToDoItemUseCase
-) : ViewModel() {
+) : BaseViewModel() {
 
     private var _toDoListLiveData = MutableLiveData<ToDoListState>(ToDoListState.UnInitialized)
     val toDoListLiveData: MutableLiveData<ToDoListState> = _toDoListLiveData
 
-    fun fetchData(): Job = viewModelScope.launch {
+    override fun fetchData(): Job = viewModelScope.launch {
         _toDoListLiveData.postValue(ToDoListState.Loading)
         _toDoListLiveData.postValue(ToDoListState.Success(getToDoListUseCase()))
     }
