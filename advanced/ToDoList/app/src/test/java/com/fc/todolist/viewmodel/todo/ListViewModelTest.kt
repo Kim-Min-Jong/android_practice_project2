@@ -2,8 +2,10 @@ package com.fc.todolist.viewmodel.todo
 
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import com.fc.todolist.data.entity.ToDoEntity
+import com.fc.todolist.domain.todo.GetToDoItemUseCase
 import com.fc.todolist.domain.todo.InsertToDoListUseCase
 import com.fc.todolist.presentation.list.ListViewModel
+import com.fc.todolist.presentation.list.ToDoListState
 import com.fc.todolist.viewmodel.ViewModelTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -35,6 +37,7 @@ internal class ListViewModelTest: ViewModelTest() {
 
     // UseCase 주입받기
     private val insertToDoListUseCase: InsertToDoListUseCase by inject()
+    private val getToDoItemUseCase: GetToDoItemUseCase by inject()
 
     private val mockList = (0 until 10).map{
         ToDoEntity(
@@ -70,9 +73,38 @@ internal class ListViewModelTest: ViewModelTest() {
         viewModel.fetchData()
         testObservable.assertValueSequence(
             listOf(
-                mockList
+                ToDoListState.UnInitialized,
+                ToDoListState.Loading,
+                ToDoListState.Success(mockList)
             )
         )
     }
 
+
+    // Test: 데이터를 업데이트 했을 때 잘 반영되늗가
+    @Test
+    fun `test Item Update`(): Unit = runTest {
+        val todo = ToDoEntity(
+            id = 1,
+            title = "title 1",
+            description = "description 1",
+            hasCompleted = true
+        )
+        viewModel.updateEntity(todo)
+        assert((getToDoItemUseCase(todo.id)?.hasCompleted ?: false) != todo.hasCompleted)
+    }
+
+    // Test: 데이터를 다 날렸을 때 빈 상태로 보여지는가
+    @Test
+    fun `test Item Delete All`(): Unit = runTest {
+        val testObservable = viewModel.toDoListLiveData.test()
+        viewModel.deleteAll()
+        testObservable.assertValueSequence(
+            listOf(
+                ToDoListState.UnInitialized,
+                ToDoListState.Loading,
+                ToDoListState.Success(listOf())
+            )
+        )
+    }
 }
