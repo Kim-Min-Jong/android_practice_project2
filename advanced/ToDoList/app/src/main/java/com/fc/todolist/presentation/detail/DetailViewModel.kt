@@ -95,5 +95,9 @@ internal class DetailViewModel(
     }
 }
 
+    fun setModifyMode() {
+        _toDoDetailLiveData.postValue(ToDoDetailState.Modify)
+    }
+
 
 }
