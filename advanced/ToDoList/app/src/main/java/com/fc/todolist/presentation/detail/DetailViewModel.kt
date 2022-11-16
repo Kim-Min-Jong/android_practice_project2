@@ -50,11 +50,8 @@ internal class DetailViewModel(
     fun deleteToDo() = viewModelScope.launch {
         _toDoDetailLiveData.postValue(ToDoDetailState.Loading)
         try {
-            if (deleteToDoItemUseCase(id)) {
-                _toDoDetailLiveData.postValue(ToDoDetailState.Delete)
-            } else {
-                _toDoDetailLiveData.postValue(ToDoDetailState.Error)
-            }
+            deleteToDoItemUseCase(id)
+            _toDoDetailLiveData.postValue(ToDoDetailState.Delete)
         } catch (e: Exception) {
             e.printStackTrace()
             _toDoDetailLiveData.postValue(ToDoDetailState.Error)

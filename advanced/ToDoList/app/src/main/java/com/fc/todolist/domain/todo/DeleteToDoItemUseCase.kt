@@ -9,7 +9,7 @@ internal class DeleteToDoItemUseCase(
 ): UseCase {
 
     // invoke 함수 - 이름 없이 간편하게 호출될 수 있는 함수
-    suspend operator fun invoke(itemId: Long):Boolean {
+    suspend operator fun invoke(itemId: Long) {
         return toDoRepository.deleteToDoItem(itemId)
     }
 }
