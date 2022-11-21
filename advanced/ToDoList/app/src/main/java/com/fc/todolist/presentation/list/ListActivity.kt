@@ -16,6 +16,7 @@ import com.fc.todolist.databinding.ActivityListBinding
 import com.fc.todolist.presentation.BaseActivity
 import com.fc.todolist.presentation.detail.DetailActivity
 import com.fc.todolist.presentation.detail.DetailActivity.Companion.DETAIL_MODE_KEY
+import com.fc.todolist.presentation.detail.DetailActivity.Companion.TODO_ID_KEY
 import com.fc.todolist.presentation.detail.DetailMode
 import com.fc.todolist.presentation.view.ToDoAdapter
 import kotlinx.coroutines.CoroutineScope
@@ -31,14 +32,12 @@ internal class ListActivity : BaseActivity<ListViewModel>(), CoroutineScope {
     private var binding: ActivityListBinding? = null
     private val adapter = ToDoAdapter()
 
-//    private val resultIntent = registerForActivityResult(
-//        ActivityResultContracts.StartActivityForResult()) { result ->
-//            if(result.resultCode == RESULT_OK) {
-//                val data = result.data?.getStringExtra(DETAIL_MODE_KEY)
-//            }
-//
-//    }
-//    )
+    private val resultIntent = registerForActivityResult(
+        ActivityResultContracts.StartActivityForResult()) { result ->
+            if(result.resultCode == RESULT_OK) {
+                viewModel.fetchData()
+            }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -77,20 +76,11 @@ internal class ListActivity : BaseActivity<ListViewModel>(), CoroutineScope {
 
         addToDoButton.setOnClickListener {
             //상세화면 넘어가기
-//            val intent = DetailActivity.getIntent(this@ListActivity, DetailMode.WRITE)
-            startActivityForResult(
-                DetailActivity.getIntent(this@ListActivity, DetailMode.WRITE),
-                DetailActivity.FETCH_REQUEST_CODE
-            )
+            val intent = DetailActivity.getIntent(this@ListActivity, DetailMode.WRITE)
+            resultIntent.launch(intent)
+        }
+    }
 
-        }
-    }
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        super.onActivityResult(requestCode, resultCode, data)
-        if (requestCode == DetailActivity.FETCH_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            viewModel.fetchData()
-        }
-    }
     private fun handleLoadingState() = with(binding) {
         this?.let {
             refreshLayout.isRefreshing = true
@@ -112,11 +102,8 @@ internal class ListActivity : BaseActivity<ListViewModel>(), CoroutineScope {
                     state.toDoList,
                     toDoItemClickListener = {
                         // 상세화면 구현
-                        startActivityForResult(
-                            DetailActivity.getIntent(this@ListActivity, it.id, DetailMode.DETAIL),
-                            DetailActivity.FETCH_REQUEST_CODE
-                        )
-
+                        val intent = DetailActivity.getIntent(this@ListActivity, it.id, DetailMode.DETAIL)
+                        resultIntent.launch(intent)
                     }, toDoCheckListener = {
                         viewModel.updateEntity(it)
                     }
