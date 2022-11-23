@@ -7,6 +7,7 @@ import com.fc.shopping.databinding.FragmentProductListBinding
 import com.fc.shopping.extensions.toast
 import com.fc.shopping.presentation.BaseFragment
 import com.fc.shopping.presentation.adapter.ProductListAdapter
+import com.fc.shopping.presentation.detail.ProductDetailActivity
 import com.fc.shopping.presentation.main.MainActivity
 
 import org.koin.android.ext.android.inject
@@ -18,7 +19,11 @@ internal class ProductListFragment: BaseFragment<ProductListViewModel, FragmentP
     private val startProductDetailForResult =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
             // 성공 이후의 동작
+            if(result.resultCode == ProductDetailActivity.PRODUCT_ORDERED_RESULT_CODE) {
+                (requireActivity() as MainActivity).viewModel.refreshOrderList()
+            }
         }
+    // 상태 변화시 상태에 따라 동작 수행
     override fun observeData() = viewModel.productListStateLiveData.observe(this){
         when(it) {
             is ProductListState.UnInitialized -> {
@@ -61,9 +66,9 @@ internal class ProductListFragment: BaseFragment<ProductListViewModel, FragmentP
             emptyResultTextView.isGone = true
             recyclerView.isGone = false
             adapter.setProductList(state.productList) {
-//                startProductDetailForResult.launch(
-//                    ProductDetailActivity.newIntent(requireContext(), it.id)
-//                )
+                startProductDetailForResult.launch(
+                    ProductDetailActivity.newIntent(requireContext(), it.id)
+                )
                 requireContext().toast("Product Entity: $it")
             }
         }

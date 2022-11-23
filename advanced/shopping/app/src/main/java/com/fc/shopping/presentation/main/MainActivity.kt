@@ -14,7 +14,17 @@ internal class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>()
 
     override val viewModel: MainViewModel by inject<MainViewModel>()
     override fun getViewBinding(): ActivityMainBinding = ActivityMainBinding.inflate(layoutInflater)
-    override fun observeData() {
+
+    // refresh 시 데이터 observe해서 새로고침
+    override fun observeData() = viewModel.mainStateLiveData.observe(this) {
+        when(it) {
+            is MainState.RefreshOrderList -> {
+                binding.bottomNav.selectedItemId = R.id.menu_profile
+                val fragment = supportFragmentManager.findFragmentByTag(ProfileFragment.TAG)
+
+                // 위 프래그먼트를 BaseFragment로 타입캐스팅해서 fetchData()해서 새로고침
+            }
+       }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
