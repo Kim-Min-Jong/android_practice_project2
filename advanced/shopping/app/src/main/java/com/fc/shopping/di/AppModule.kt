@@ -7,6 +7,7 @@ import com.fc.shopping.data.network.provideProductRetrofit
 import com.fc.shopping.data.repository.DefaultProductRepository
 import com.fc.shopping.data.repository.ProductRepository
 import com.fc.shopping.domain.GetProductItemUseCase
+import com.fc.shopping.domain.GetProductListUseCase
 import com.fc.shopping.presentation.list.ProductListViewModel
 import com.fc.shopping.presentation.main.MainViewModel
 import com.fc.shopping.presentation.profile.ProfileViewModel
@@ -29,9 +30,10 @@ val appModule = module {
 
     //UseCases
     factory { GetProductItemUseCase(get()) }
+    factory { GetProductListUseCase(get()) }
 
     //ViewModels
     viewModel { MainViewModel() }
     viewModel { ProfileViewModel() }
-    viewModel { ProductListViewModel() }
+    viewModel { ProductListViewModel(get()) }
 }
