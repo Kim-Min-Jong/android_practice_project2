@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import com.fc.shopping.R
 import com.fc.shopping.databinding.ActivityMainBinding
 import com.fc.shopping.presentation.BaseActivity
+import com.fc.shopping.presentation.BaseFragment
 import com.fc.shopping.presentation.list.ProductListFragment
 import com.fc.shopping.presentation.profile.ProfileFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -23,6 +24,7 @@ internal class MainActivity : BaseActivity<MainViewModel, ActivityMainBinding>()
                 val fragment = supportFragmentManager.findFragmentByTag(ProfileFragment.TAG)
 
                 // 위 프래그먼트를 BaseFragment로 타입캐스팅해서 fetchData()해서 새로고침
+                (fragment as? BaseFragment<*, *>)?.viewModel?.fetchData()
             }
        }
     }

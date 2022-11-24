@@ -9,6 +9,9 @@ import com.fc.shopping.data.network.provideProductRetrofit
 import com.fc.shopping.data.preference.PreferenceManager
 import com.fc.shopping.data.repository.DefaultProductRepository
 import com.fc.shopping.data.repository.ProductRepository
+import com.fc.shopping.domain.*
+import com.fc.shopping.domain.DeleteOrderedProductListUseCase
+import com.fc.shopping.domain.GetOrderedProductListUseCase
 import com.fc.shopping.domain.GetProductItemUseCase
 import com.fc.shopping.domain.GetProductListUseCase
 import com.fc.shopping.domain.OrderProductItemUseCase
@@ -45,10 +48,12 @@ val appModule = module {
     factory { GetProductItemUseCase(get()) }
     factory { GetProductListUseCase(get()) }
     factory { OrderProductItemUseCase(get()) }
+    factory { GetOrderedProductListUseCase(get()) }
+    factory { DeleteOrderedProductListUseCase(get()) }
 
     //ViewModels
     viewModel { MainViewModel() }
-    viewModel { ProfileViewModel(get()) }
+    viewModel { ProfileViewModel(get(), get(), get()) }
     viewModel { ProductListViewModel(get()) }
     viewModel { (productId: Long) -> ProductDetailViewModel(productId, get(), get()) }
 }
