@@ -6,6 +6,7 @@ import com.fc.shopping.data.network.buildOkHttpClient
 import com.fc.shopping.data.network.provideGsonConverterFactory
 import com.fc.shopping.data.network.provideProductApiService
 import com.fc.shopping.data.network.provideProductRetrofit
+import com.fc.shopping.data.preference.PreferenceManager
 import com.fc.shopping.data.repository.DefaultProductRepository
 import com.fc.shopping.data.repository.ProductRepository
 import com.fc.shopping.domain.GetProductItemUseCase
@@ -37,6 +38,9 @@ val appModule = module {
     //repositories
     single<ProductRepository> { DefaultProductRepository(get(), get(), get())}
 
+    // sharedPreference
+    single{ PreferenceManager(androidApplication()) }
+
     //UseCases
     factory { GetProductItemUseCase(get()) }
     factory { GetProductListUseCase(get()) }
@@ -44,7 +48,7 @@ val appModule = module {
 
     //ViewModels
     viewModel { MainViewModel() }
-    viewModel { ProfileViewModel() }
+    viewModel { ProfileViewModel(get()) }
     viewModel { ProductListViewModel(get()) }
     viewModel { (productId: Long) -> ProductDetailViewModel(productId, get(), get()) }
 }
