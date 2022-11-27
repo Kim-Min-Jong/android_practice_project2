@@ -25,4 +25,5 @@ main 브랜치에는 그 날 공부한 것 정리한 Readme를 링크할 예정(
 [Upper intermediate - GithubRepositoty app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Upper_intermediate/upper%20intermediate/GithubRepository)     
 [Upper intermediate - CityMicroDust app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Upper_intermediate/upper%20intermediate/CityMicroDust)  
 [Upper intermediate - CopyrightFreeImage app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Upper_intermediate/upper%20intermediate/CopyrightFreeImage)  
-[Advanced - ToDoList app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/ToDoList)             
+[Advanced - ToDoList app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/ToDoList)  
+[Advanced - shopping app](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/shopping)               
