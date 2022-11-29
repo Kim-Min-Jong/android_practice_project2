@@ -167,6 +167,7 @@ class MainActivity : AppCompatActivity() {
                     bindCaptureListener()
                     bindZoomListener()
                     initFlashAndAddListener()
+                    bindPreviewImageViewClickListener()
                 } catch (e: Exception) {
                     e.printStackTrace()
                 }
@@ -226,6 +227,17 @@ class MainActivity : AppCompatActivity() {
             } else {
                 isFlashEnabled = false
                 flashSwitch.setOnCheckedChangeListener(null)
+            }
+        }
+    }
+
+    // 미리보기 이미지 클릭 시 미리보기 액티비티로 넘어가는 리스너
+    private fun bindPreviewImageViewClickListener() = with(binding) {
+        this?.let {
+            previewImageVIew.setOnClickListener {
+                startActivity(
+                    ImageListActivity.newIntent(this@MainActivity, uriList)
+                )
             }
         }
     }
