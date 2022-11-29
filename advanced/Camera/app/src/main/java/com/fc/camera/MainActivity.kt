@@ -11,6 +11,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
+import android.view.ScaleGestureDetector
 import android.view.View
 import android.widget.Toast
 import androidx.camera.core.*
@@ -159,8 +160,36 @@ class MainActivity : AppCompatActivity() {
                     )
                     preview.setSurfaceProvider(viewFinder.surfaceProvider)
                     bindCaptureListener()
+                    bindZoomListener()
                 } catch (e: Exception) { e.printStackTrace() }
             }, cameraMainExecutor)
+        }
+    }
+
+    // 줌인 아웃 기능 함수
+    @SuppressLint("ClickableViewAccessibility")
+    private fun bindZoomListener() = with(binding) {
+        this?.let {
+            // ScaleGestureDetector - 손가락으로 줌 제스쳐를 취했을 떄 얼마나 늘어나느냐 줄어드느냐 감지하는 리스너
+            val listener = object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
+                override fun onScale(detector: ScaleGestureDetector): Boolean {
+                    // 현재 줌 비율
+                    val currentZoomRatio = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: 1f
+                    // 움직인 비율
+                    val delta = detector.scaleFactor
+
+                    // 현재 비율에서 움직인 비율을 곱하여 줌을 세팅
+                    camera?.cameraControl?.setZoomRatio(currentZoomRatio * delta)
+                    return true
+                }
+            }
+
+            // 리스너 등록
+            val scaleGestureDetector = ScaleGestureDetector(this@MainActivity, listener)
+            viewFinder.setOnTouchListener { _, motionEvent ->
+                scaleGestureDetector.onTouchEvent(motionEvent)
+                return@setOnTouchListener true
+            }
         }
     }
 
