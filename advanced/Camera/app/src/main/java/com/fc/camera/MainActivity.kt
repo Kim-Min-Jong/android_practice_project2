@@ -1,18 +1,31 @@
 package com.fc.camera
 
 import android.Manifest
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.pm.PackageManager
 import android.hardware.display.DisplayManager
+import android.media.MediaScannerConnection
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.view.View
 import android.widget.Toast
 import androidx.camera.core.*
+import androidx.camera.core.impl.ImageOutputConfig
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.fc.camera.databinding.ActivityMainBinding
+import com.fc.camera.extensions.loadCenterCrop
+import com.fc.camera.util.PathUtil
+import java.io.File
+import java.io.FileNotFoundException
+import java.text.SimpleDateFormat
+import java.util.*
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
@@ -41,22 +54,34 @@ class MainActivity : AppCompatActivity() {
 
     private var camera: Camera? = null
 
+    // 화면이 회전한지 확인하는 전체 뷰
+    private var root: View? = null
+
+    // 캡쳐 중인지 아닌지
+    private var isCapturing = false
+
     // 실행 리스너
     private val displayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(p0: Int) = Unit
         override fun onDisplayRemoved(p0: Int) = Unit
+        @SuppressLint("RestrictedApi")
         override fun onDisplayChanged(displayId: Int) {
             if (this@MainActivity.displayId == displayId) {
-                // 이미지 캡쳐 구현 (현재 상태에 대해)
+                // 이미지 캡쳐 구현 (현재 회전 상태에 대해)
+                if(::imageCapture.isInitialized && root != null)
+                    imageCapture.targetRotation = root?.display?.rotation ?: ImageOutputConfig.INVALID_ROTATION
             }
         }
 
     }
 
+    // 이미지 관리할 리스트
+    private val uriList = mutableListOf<Uri>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
+        root = binding?.root
         setContentView(binding?.root)
 
         // 권한이 있으면 카메라 시작
@@ -133,9 +158,80 @@ class MainActivity : AppCompatActivity() {
                         imageCapture
                     )
                     preview.setSurfaceProvider(viewFinder.surfaceProvider)
+                    bindCaptureListener()
                 } catch (e: Exception) { e.printStackTrace() }
             }, cameraMainExecutor)
         }
+    }
+
+    private fun bindCaptureListener() = with(binding) {
+        this?.let {
+            captureButton.setOnClickListener {
+                if(isCapturing.not()) {
+                    isCapturing = true
+                    captureCamera()
+                } else {
+
+                }
+            }
+        }
+    }
+
+    // 이미지가 저장이 되었고, 다른 갤러리에 보여달라고 설정하는 함수
+    private fun updateSavedImageContent() {
+        contentUri?.let {
+            isCapturing = try{
+                val file = File(PathUtil.getPath(this, it) ?: throw FileNotFoundException())
+                // file(이미지)를 스캔함
+                MediaScannerConnection.scanFile(this, arrayOf(file.path), arrayOf("image/jpeg"), null)
+
+                Handler(Looper.getMainLooper()).post {
+                    binding?.previewImageVIew?.loadCenterCrop(url=it.toString(), corner=4f)
+                }
+                uriList.add(it)
+                false
+            } catch(e: Exception) {
+                e.printStackTrace()
+                Toast.makeText(this, "파일이 존재하지 않습니다.", Toast.LENGTH_SHORT).show()
+                false
+            }
+        }
+    }
+
+
+    // 가장 최근에 저장된 이미지의 Uri
+    private var contentUri: Uri? = null
+
+    // 카메라 캡쳐하기
+    private fun captureCamera() {
+        // 앱이 실행되어 이미지 캡쳐 객체가 있어야하는데 없으면 바로 리턴
+        if(::imageCapture.isInitialized.not()) return
+
+        // 캡쳐 저장 시작
+        // 파일 선언
+        val photoFile = File(
+            PathUtil.getOutputDirectory(this),
+            SimpleDateFormat(
+                FILENAME_FORMAT, Locale.KOREA
+            ).format(System.currentTimeMillis()) + ".jpg"
+        )
+
+        // 파일을 쓸 수 있는 옵션 지정 (ImageCapture)
+        val outputFileOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+        // 이미지 캡쳐를 캡쳐함 (사진 찍기)  - 찍고 저장될 떄의 콜백을 지정
+        imageCapture.takePicture(outputFileOptions, cameraExecutor, object: ImageCapture.OnImageSavedCallback{
+            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                val savedUri = outputFileResults.savedUri ?: Uri.fromFile(photoFile)
+                contentUri = savedUri
+                updateSavedImageContent()
+            }
+
+            override fun onError(exception: ImageCaptureException) {
+                exception.printStackTrace()
+                isCapturing = false
+            }
+
+        })
     }
 
     override fun onRequestPermissionsResult(
@@ -166,5 +262,7 @@ class MainActivity : AppCompatActivity() {
 
         // 기본 후면 카메리 사용
         private val LENS_FACING = CameraSelector.LENS_FACING_BACK
+
+        private const val FILENAME_FORMAT = "yyyy-MM-dd-HH-mm-ss-SSS"
     }
 }
