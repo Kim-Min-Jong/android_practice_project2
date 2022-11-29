@@ -290,7 +290,7 @@ class MainActivity : AppCompatActivity() {
 
         // 파일을 쓸 수 있는 옵션 지정 (ImageCapture)
         val outputFileOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
-        // 플래시 사용가능하면 켜기
+        // 플래시 체크시 켜기
         if(isFlashEnabled)
             flashLight(true)
         // 이미지 캡쳐를 캡쳐함 (사진 찍기)  - 찍고 저장될 떄의 콜백을 지정

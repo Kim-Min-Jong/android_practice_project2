@@ -8,7 +8,7 @@ import com.fc.camera.databinding.ViewholderImageBinding
 import com.fc.camera.extensions.loadCenterCrop
 
 class ImageViewPagerAdapter(
-    val uriList: MutableList<Uri>
+    var uriList: MutableList<Uri>
 ) : RecyclerView.Adapter<ImageViewPagerAdapter.ImageViewHolder>() {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ImageViewHolder {
