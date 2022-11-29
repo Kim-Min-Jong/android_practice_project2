@@ -20,6 +20,7 @@ import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.camera.view.PreviewView
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.core.view.isGone
 import com.fc.camera.databinding.ActivityMainBinding
 import com.fc.camera.extensions.loadCenterCrop
 import com.fc.camera.util.PathUtil
@@ -60,17 +61,21 @@ class MainActivity : AppCompatActivity() {
 
     // 캡쳐 중인지 아닌지
     private var isCapturing = false
+    // 플래시 토글버튼 상태
+    private var isFlashEnabled = false
 
     // 실행 리스너
     private val displayListener = object : DisplayManager.DisplayListener {
         override fun onDisplayAdded(p0: Int) = Unit
         override fun onDisplayRemoved(p0: Int) = Unit
+
         @SuppressLint("RestrictedApi")
         override fun onDisplayChanged(displayId: Int) {
             if (this@MainActivity.displayId == displayId) {
                 // 이미지 캡쳐 구현 (현재 회전 상태에 대해)
-                if(::imageCapture.isInitialized && root != null)
-                    imageCapture.targetRotation = root?.display?.rotation ?: ImageOutputConfig.INVALID_ROTATION
+                if (::imageCapture.isInitialized && root != null)
+                    imageCapture.targetRotation =
+                        root?.display?.rotation ?: ImageOutputConfig.INVALID_ROTATION
             }
         }
 
@@ -148,7 +153,7 @@ class MainActivity : AppCompatActivity() {
                     .setFlashMode(ImageCapture.FLASH_MODE_AUTO)
                 imageCapture = imageCaptureBuilder.build()
 
-                try{
+                try {
                     // 기존에 카메라가 바인딩이 되어있을 수도 있는데 그것을 모두 제거
                     cameraProvider.unbindAll()
                     // 카메라 객체 가져옴
@@ -161,7 +166,10 @@ class MainActivity : AppCompatActivity() {
                     preview.setSurfaceProvider(viewFinder.surfaceProvider)
                     bindCaptureListener()
                     bindZoomListener()
-                } catch (e: Exception) { e.printStackTrace() }
+                    initFlashAndAddListener()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
             }, cameraMainExecutor)
         }
     }
@@ -171,7 +179,7 @@ class MainActivity : AppCompatActivity() {
     private fun bindZoomListener() = with(binding) {
         this?.let {
             // ScaleGestureDetector - 손가락으로 줌 제스쳐를 취했을 떄 얼마나 늘어나느냐 줄어드느냐 감지하는 리스너
-            val listener = object: ScaleGestureDetector.SimpleOnScaleGestureListener() {
+            val listener = object : ScaleGestureDetector.SimpleOnScaleGestureListener() {
                 override fun onScale(detector: ScaleGestureDetector): Boolean {
                     // 현재 줌 비율
                     val currentZoomRatio = camera?.cameraInfo?.zoomState?.value?.zoomRatio ?: 1f
@@ -196,7 +204,7 @@ class MainActivity : AppCompatActivity() {
     private fun bindCaptureListener() = with(binding) {
         this?.let {
             captureButton.setOnClickListener {
-                if(isCapturing.not()) {
+                if (isCapturing.not()) {
                     isCapturing = true
                     captureCamera()
                 } else {
@@ -206,21 +214,44 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // 플래시 초기화 및 리스너 등록
+    private fun initFlashAndAddListener() = with(binding) {
+        this?.let {
+            val hasFlash = camera?.cameraInfo?.hasFlashUnit() ?: false
+            flashSwitch.isGone = hasFlash.not()
+            if (hasFlash) {
+                flashSwitch.setOnCheckedChangeListener { _, isChecked ->
+                    isFlashEnabled = isChecked
+                }
+            } else {
+                isFlashEnabled = false
+                flashSwitch.setOnCheckedChangeListener(null)
+            }
+        }
+    }
+
     // 이미지가 저장이 되었고, 다른 갤러리에 보여달라고 설정하는 함수
     private fun updateSavedImageContent() {
         contentUri?.let {
-            isCapturing = try{
+            isCapturing = try {
                 val file = File(PathUtil.getPath(this, it) ?: throw FileNotFoundException())
                 // file(이미지)를 스캔함
-                MediaScannerConnection.scanFile(this, arrayOf(file.path), arrayOf("image/jpeg"), null)
+                MediaScannerConnection.scanFile(
+                    this,
+                    arrayOf(file.path),
+                    arrayOf("image/jpeg"),
+                    null
+                )
 
                 Handler(Looper.getMainLooper()).post {
-                    binding?.previewImageVIew?.loadCenterCrop(url=it.toString(), corner=4f)
+                    binding?.previewImageVIew?.loadCenterCrop(url = it.toString(), corner = 4f)
                 }
                 uriList.add(it)
+                flashLight(false)
                 false
-            } catch(e: Exception) {
+            } catch (e: Exception) {
                 e.printStackTrace()
+                flashLight(false)
                 Toast.makeText(this, "파일이 존재하지 않습니다.", Toast.LENGTH_SHORT).show()
                 false
             }
@@ -234,7 +265,7 @@ class MainActivity : AppCompatActivity() {
     // 카메라 캡쳐하기
     private fun captureCamera() {
         // 앱이 실행되어 이미지 캡쳐 객체가 있어야하는데 없으면 바로 리턴
-        if(::imageCapture.isInitialized.not()) return
+        if (::imageCapture.isInitialized.not()) return
 
         // 캡쳐 저장 시작
         // 파일 선언
@@ -247,20 +278,35 @@ class MainActivity : AppCompatActivity() {
 
         // 파일을 쓸 수 있는 옵션 지정 (ImageCapture)
         val outputFileOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+        // 플래시 사용가능하면 켜기
+        if(isFlashEnabled)
+            flashLight(true)
         // 이미지 캡쳐를 캡쳐함 (사진 찍기)  - 찍고 저장될 떄의 콜백을 지정
-        imageCapture.takePicture(outputFileOptions, cameraExecutor, object: ImageCapture.OnImageSavedCallback{
-            override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
-                val savedUri = outputFileResults.savedUri ?: Uri.fromFile(photoFile)
-                contentUri = savedUri
-                updateSavedImageContent()
-            }
+        imageCapture.takePicture(
+            outputFileOptions,
+            cameraExecutor,
+            object : ImageCapture.OnImageSavedCallback {
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    val savedUri = outputFileResults.savedUri ?: Uri.fromFile(photoFile)
+                    contentUri = savedUri
+                    updateSavedImageContent()
+                }
 
-            override fun onError(exception: ImageCaptureException) {
-                exception.printStackTrace()
-                isCapturing = false
-            }
+                override fun onError(exception: ImageCaptureException) {
+                    exception.printStackTrace()
+                    isCapturing = false
+                    flashLight(false)
+                }
 
-        })
+            })
+    }
+
+    // 플래시 제어
+    private fun flashLight(light: Boolean) {
+        val hasFlash = camera?.cameraInfo?.hasFlashUnit() ?: false
+        if(hasFlash) {
+            camera?.cameraControl?.enableTorch(light)
+        }
     }
 
     override fun onRequestPermissionsResult(
