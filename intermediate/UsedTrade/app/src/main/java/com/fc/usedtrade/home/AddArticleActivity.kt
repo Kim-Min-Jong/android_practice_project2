@@ -70,29 +70,29 @@ class AddArticleActivity : AppCompatActivity() {
 
         binding?.submitButton?.setOnClickListener {
             val title = binding?.titleEditText?.text.toString()
-            val price = binding?.priceEditText?.text.toString()
+            val content = binding?.contentEditText?.text.toString()
             val sellerId = auth.currentUser?.uid.orEmpty()
             showProgress()
             if (selectedUri != null) {
                 val photoUri = selectedUri ?: return@setOnClickListener
                 uploadPhoto(photoUri,
                     successHandler = { uri ->
-                        uploadArticle(sellerId, title, price, uri)
+                        uploadArticle(sellerId, title, content, uri)
                     },
                     errorHandler = {
                         Toast.makeText(this, "사진을 업로드에 실패했습니다.", Toast.LENGTH_SHORT).show()
                         hideProgress()
                     })
             } else{
-                uploadArticle(sellerId, title, price, "")
+                uploadArticle(sellerId, title, content, "")
             }
 
 
         }
     }
 
-    private fun uploadArticle(sellerId: String, title: String, price: String, imageUrl: String) {
-        val model = ArticleModel(sellerId, title, System.currentTimeMillis(), "$price 원", imageUrl)
+    private fun uploadArticle(sellerId: String, title: String, content: String, imageUrl: String) {
+        val model = ArticleModel(sellerId, title, System.currentTimeMillis(), content, imageUrl)
         articleDB.push().setValue(model)
         hideProgress()
         finish()

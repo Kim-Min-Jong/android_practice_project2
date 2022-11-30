@@ -19,7 +19,7 @@ class ArticleAdapter(private val onItemClicked: (ArticleModel) -> Unit): ListAda
 
             binding.titleTextView.text = articleModel.title
             binding.dateTextView.text = format.format(date).toString()
-            binding.priceTextView.text = articleModel.price
+            binding.priceTextView.text = articleModel.content
             binding.root.setOnClickListener{
                 onItemClicked(articleModel)
             }
