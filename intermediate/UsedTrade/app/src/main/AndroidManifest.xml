@@ -4,6 +4,8 @@
     package="com.fc.usedtrade">
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.FLASHLIGHT" />
 
     <application
         android:allowBackup="true"
@@ -15,6 +17,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.UsedTrade"
         tools:targetApi="31">
+        <activity
+            android:name=".photo.ImageListActivity"
+            android:exported="false" />
+        <activity
+            android:name=".photo.CameraActivity"
+            android:exported="false" />
         <activity
             android:name=".chatdetail.ChatRoomActivity"
             android:exported="false" />
