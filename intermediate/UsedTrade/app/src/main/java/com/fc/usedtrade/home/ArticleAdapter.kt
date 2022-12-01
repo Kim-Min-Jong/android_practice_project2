@@ -23,9 +23,9 @@ class ArticleAdapter(private val onItemClicked: (ArticleModel) -> Unit): ListAda
             binding.root.setOnClickListener{
                 onItemClicked(articleModel)
             }
-            if (articleModel.imageUrl.isNotEmpty()) {
+            if (articleModel.imageUrlList.isNotEmpty()) {
                 Glide.with(binding.thumbnailImageView)
-                    .load(articleModel.imageUrl)
+                    .load(articleModel.imageUrlList.first())
                     .into(binding.thumbnailImageView)
             }
         }

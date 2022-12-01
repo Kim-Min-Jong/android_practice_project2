@@ -7,6 +7,7 @@ import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
@@ -14,6 +15,8 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.view.isVisible
+import androidx.lifecycle.lifecycleScope
+import com.fc.usedtrade.adapter.PhotoListAdapter
 import com.fc.usedtrade.databinding.ActivityAddArticleBinding
 import com.fc.usedtrade.photo.CameraActivity
 import com.fc.usedtrade.photo.ImageListActivity.Companion.URI_LIST_KEY
@@ -25,11 +28,13 @@ import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.FirebaseStorage
 import com.google.firebase.storage.ktx.storage
+import kotlinx.coroutines.*
+import kotlinx.coroutines.tasks.await
 
 class AddArticleActivity : AppCompatActivity() {
     private var binding: ActivityAddArticleBinding? = null
     private lateinit var getGalleryImageLauncher: ActivityResultLauncher<Intent>
-    private var selectedUri: Uri? = null
+    private var imageUriList: ArrayList<Uri> = arrayListOf()
     private val auth: FirebaseAuth by lazy {
         Firebase.auth
     }
@@ -40,25 +45,31 @@ class AddArticleActivity : AppCompatActivity() {
         Firebase.database.reference.child(DB_ARTICLES)
     }
 
-    private val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
-        Log.e("launcher", it.resultCode.toString())
-        if(it.resultCode == Activity.RESULT_OK) {
-            val uriList = it.data?.getParcelableArrayListExtra<Uri>(URI_LIST_KEY)
-            if(uriList!= null) {
-                binding?.photoImageView?.setImageURI(uriList[0])
-                selectedUri = uriList[0]
+    private val photoListAdapter = PhotoListAdapter { uri -> removePhoto(uri) }
+    private val launcher =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            Log.e("launcher", it.resultCode.toString())
+            if (it.resultCode == Activity.RESULT_OK) {
+                val uriList = it.data?.getParcelableArrayListExtra<Uri>(URI_LIST_KEY)
+                //val data = it.data?.data
+                if (uriList != null) {
+                    //imageUriList.add(data!!)  xxxx 에러발생 uri 타입이 이상한듯
+                    uriList.forEach { uri ->
+                        imageUriList.add(uri)
+                    }
+                    // 리사이클러뷰 반영
+                    //photoListAdapter.setPhotoList(uriList)
+                } else {
+                    Toast.makeText(this, "사진을 가져오지 못했습니다.(uri없음)", Toast.LENGTH_SHORT).show()
+                }
+                // 리사이클러뷰 반영
+                photoListAdapter.setPhotoList(imageUriList)
+
+
             } else {
-                Toast.makeText(this, "사진을 가져오지 못했습니다.(uri없음)", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "사진을 가져오지 못했습니다.(인텐트 실패)", Toast.LENGTH_SHORT).show()
             }
-
-            uriList?.let { list ->
-
-            }
-
-        } else{
-            Toast.makeText(this, "사진을 가져오지 못했습니다.(인텐트 실패)", Toast.LENGTH_SHORT).show()
         }
-    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +80,8 @@ class AddArticleActivity : AppCompatActivity() {
     }
 
     private fun initViews() = with(binding) {
-        this?.let{
+        this?.let {
+            photoRecyclerView.adapter = photoListAdapter
             imageAddButton.setOnClickListener {
                 showPictureUploadDialog()
             }
@@ -79,50 +91,64 @@ class AddArticleActivity : AppCompatActivity() {
                 val content = contentEditText.text.toString()
                 val sellerId = auth.currentUser?.uid.orEmpty()
                 showProgress()
-                if (selectedUri != null) {
-                    val photoUri = selectedUri ?: return@setOnClickListener
-                    uploadPhoto(photoUri,
-                        successHandler = { uri ->
-                            uploadArticle(sellerId, title, content, uri)
-                        },
-                        errorHandler = {
-                            Toast.makeText(this@AddArticleActivity, "사진을 업로드에 실패했습니다.", Toast.LENGTH_SHORT).show()
-                            hideProgress()
-                        })
-                } else{
-                    uploadArticle(sellerId, title, content, "")
+                if (imageUriList.isNotEmpty()) {
+                    lifecycleScope.launch {
+                        val results = uploadPhoto(imageUriList)
+                        uploadArticle(sellerId, title, content, results.filterIsInstance<String>())
+                    }
+                } else {
+                    uploadArticle(sellerId, title, content, listOf())
                 }
             }
         }
     }
 
-    private fun uploadArticle(sellerId: String, title: String, content: String, imageUrl: String) {
-        val model = ArticleModel(sellerId, title, System.currentTimeMillis(), content, imageUrl)
+
+    private fun uploadArticle(sellerId: String, title: String, content: String, imageUrlList: List<String>) {
+        val model = ArticleModel(sellerId, title, System.currentTimeMillis(), content, imageUrlList)
         articleDB.push().setValue(model)
         hideProgress()
         finish()
     }
 
-    private fun uploadPhoto(photoUri: Uri, successHandler: (String) -> Unit, errorHandler: () -> Unit) {
-        val fileName = "${System.currentTimeMillis()}.png"
-
-        // storage 도 child를 통해 하위 디렉토리식으로 연결 할 수 있음
-        storage.reference.child("article/photo").child(fileName)
-            .putFile(photoUri).addOnCompleteListener{
-                if(it.isSuccessful){
-                    // 스토리지에 성공적으로 넣었을 시 다시 그 넣어진 url을 가져와 successhandler를 실행
-                    storage.reference.child("article/photo").child(fileName).downloadUrl
-                        .addOnSuccessListener { uri ->
-                            // 성공하면 핸들러로 가서 uri를 포함한 믈픔을 realtime db에 저장함
-                            successHandler(uri.toString())
-                        }.addOnFailureListener {
-                            // 실패시 uri없이 db에 물품정보 저장
-                            errorHandler()
-                        }
-                }  else{
-                    errorHandler()
+    private suspend fun uploadPhoto(uriList: List<Uri>) = withContext(Dispatchers.IO) {
+        // storage 도 child를 통해 하위 디렉토리식으로 연결 할 수 있음 -- > 비동기로 변경
+//        val fileName = "${System.currentTimeMillis()}.png"
+//        storage.reference.child("article/photo").child(fileName)
+//            .putFile(photoUri).addOnCompleteListener {
+//                if (it.isSuccessful) {
+//                    // 스토리지에 성공적으로 넣었을 시 다시 그 넣어진 url을 가져와 successhandler를 실행
+//                    storage.reference.child("article/photo").child(fileName).downloadUrl
+//                        .addOnSuccessListener { uri ->
+//                            // 성공하면 핸들러로 가서 uri를 포함한 믈픔을 realtime db에 저장함
+//                            successHandler(uri.toString())
+//                        }.addOnFailureListener {
+//                            // 실패시 uri없이 db에 물품정보 저장
+//                            errorHandler()
+//                        }
+//                } else {
+//                    errorHandler()
+//                }
+//            }
+        // 비동기로 storage에 이미지 저장 (여러 이미지 가능 List Type)
+        val uploadDeferred: List<Deferred<Any>> = uriList.mapIndexed { index, uri ->
+            lifecycleScope.async {
+                try {
+                    val fileName = "image${index}.png"
+                    return@async storage.reference.child("article/photo").child(fileName)
+                        .putFile(uri)
+                        .await()
+                        .storage
+                        .downloadUrl
+                        .await()
+                        .toString()
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                    return@async Pair(uri, e)
                 }
             }
+        }
+        return@withContext uploadDeferred.awaitAll()
     }
 
     private fun initImageLauncher() {
@@ -131,8 +157,9 @@ class AddArticleActivity : AppCompatActivity() {
                 if (result.resultCode == RESULT_OK) {
                     val uri = result.data?.data // 선택한 이미지의 주소(상대경로)
                     if (uri != null) {
-                        binding?.photoImageView?.setImageURI(uri)
-                        selectedUri = uri
+                        //binding?.photoImageView?.setImageURI(uri)
+                        imageUriList.add(uri)
+                        photoListAdapter.setPhotoList(imageUriList)
                     } else {
                         Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
                     }
@@ -174,11 +201,12 @@ class AddArticleActivity : AppCompatActivity() {
     private fun showProgress() {
         binding?.progressBar?.isVisible = true
     }
+
     private fun hideProgress() {
         binding?.progressBar?.isVisible = false
     }
 
-    private fun checkExternalStoragePermission(uploadAction: ()-> Unit) {
+    private fun checkExternalStoragePermission(uploadAction: () -> Unit) {
         when {
             // 권한 확인
             ContextCompat.checkSelfPermission(
@@ -196,7 +224,9 @@ class AddArticleActivity : AppCompatActivity() {
             }
             else -> {
                 ActivityCompat.requestPermissions(
-                    this@AddArticleActivity, arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE), 1000
+                    this@AddArticleActivity,
+                    arrayOf(android.Manifest.permission.READ_EXTERNAL_STORAGE),
+                    1000
                 )
             }
         }
@@ -220,6 +250,11 @@ class AddArticleActivity : AppCompatActivity() {
             .show()
     }
 
+    // 리사이클러뷰 이미지 지우기
+    private fun removePhoto(uri: Uri) {
+        imageUriList.remove(uri)
+        photoListAdapter.setPhotoList(imageUriList)
+    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

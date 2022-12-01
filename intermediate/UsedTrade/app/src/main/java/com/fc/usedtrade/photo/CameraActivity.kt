@@ -252,6 +252,7 @@ class CameraActivity : AppCompatActivity() {
         this?.let {
             previewImageVIew.setOnClickListener {
                 launcher.launch(ImageListActivity.newIntent(this@CameraActivity, uriList))
+//                ImageListActivity.newIntent(this@CameraActivity, uriList)
             }
         }
     }
