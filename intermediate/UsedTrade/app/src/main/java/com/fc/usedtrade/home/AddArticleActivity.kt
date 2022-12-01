@@ -18,6 +18,7 @@ import androidx.core.view.isVisible
 import androidx.lifecycle.lifecycleScope
 import com.fc.usedtrade.adapter.PhotoListAdapter
 import com.fc.usedtrade.databinding.ActivityAddArticleBinding
+import com.fc.usedtrade.gallery.GalleryActivity
 import com.fc.usedtrade.photo.CameraActivity
 import com.fc.usedtrade.photo.ImageListActivity.Companion.URI_LIST_KEY
 import com.fc.usedtrade.util.DBKey.Companion.DB_ARTICLES
@@ -171,16 +172,34 @@ class AddArticleActivity : AppCompatActivity() {
 
     private fun initImageLauncher() {
         getGalleryImageLauncher =
-            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
-                if (result.resultCode == RESULT_OK) {
-                    val uri = result.data?.data // 선택한 이미지의 주소(상대경로)
-                    if (uri != null) {
-                        //binding?.photoImageView?.setImageURI(uri)
-                        imageUriList.add(uri)
-                        photoListAdapter.setPhotoList(imageUriList)
+            registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+//                if (result.resultCode == RESULT_OK) {
+//                    val uri = result.data?.data // 선택한 이미지의 주소(상대경로)
+//                    if (uri != null) {
+//                        //binding?.photoImageView?.setImageURI(uri)
+//                        imageUriList.add(uri)
+//                        photoListAdapter.setPhotoList(imageUriList)
+//                    } else {
+//                        Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+//                    }
+//                }
+                if (it.resultCode == Activity.RESULT_OK) {
+                    val uriList = it.data?.getParcelableArrayListExtra<Uri>(URI_LIST_KEY)
+                    //val data = it.data?.data
+                    if (uriList != null) {
+                        //imageUriList.add(data!!)  xxxx 에러발생 uri 타입이 이상한듯
+                        uriList.forEach { uri ->
+                            imageUriList.add(uri)
+                        }
+                        // 리사이클러뷰 반영
+                        //photoListAdapter.setPhotoList(uriList)
                     } else {
-                        Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "사진을 가져오지 못했습니다.(uri없음)", Toast.LENGTH_SHORT).show()
                     }
+                    // 리사이클러뷰 반영
+                    photoListAdapter.setPhotoList(imageUriList)
+
+
                 } else {
                     Toast.makeText(this, "사진을 가져오지 못했습니다.", Toast.LENGTH_SHORT).show()
                     return@registerForActivityResult
@@ -203,10 +222,11 @@ class AddArticleActivity : AppCompatActivity() {
 
     // SAF(Storage Access Framework) with content provider
     private fun navigatePhotos() {
-        val intent = Intent(Intent.ACTION_GET_CONTENT)
-        intent.type = "image/*"
-        //  deprecated      startActivityForResult()
-        getGalleryImageLauncher.launch(intent)
+//        val intent = Intent(Intent.ACTION_GET_CONTENT)
+//        intent.type = "image/*"
+//        //  deprecated      startActivityForResult()
+//        getGalleryImageLauncher.launch(intent)
+        getGalleryImageLauncher.launch(GalleryActivity.newIntent(this))
     }
 
     // 카메라 찍을 수 있ㄱ[
