@@ -94,7 +94,7 @@ class AddArticleActivity : AppCompatActivity() {
                 if (imageUriList.isNotEmpty()) {
                     lifecycleScope.launch {
                         val results = uploadPhoto(imageUriList)
-                        uploadArticle(sellerId, title, content, results.filterIsInstance<String>())
+                        afterUploadPhoto(results, title, content, sellerId)
                     }
                 } else {
                     uploadArticle(sellerId, title, content, listOf())
@@ -149,6 +149,24 @@ class AddArticleActivity : AppCompatActivity() {
             }
         }
         return@withContext uploadDeferred.awaitAll()
+    }
+
+    // 업로드 후 에러 처리를 위한 함수
+    private fun afterUploadPhoto(results: List<Any>, title: String, content: String, sellerId: String) {
+        val errorResults = results.filterIsInstance<Pair<Uri, Exception>>()
+        val successResults = results.filterIsInstance<String>()
+
+        when {
+            errorResults.isNotEmpty() && successResults.isNotEmpty() -> {
+                photoUploadErrorButContinueDialog(errorResults, successResults, title, content, sellerId)
+            }
+            errorResults.isNotEmpty() && successResults.isEmpty() -> {
+                uploadError()
+            }
+            else -> {
+                uploadArticle(sellerId, title, content, successResults)
+            }
+        }
     }
 
     private fun initImageLauncher() {
@@ -249,6 +267,34 @@ class AddArticleActivity : AppCompatActivity() {
             .create()
             .show()
     }
+
+    // 이미지 업로드시 에러가 났을 때 뜨는 다이얼 로그
+    private fun photoUploadErrorButContinueDialog(
+        errorResults: List<Pair<Uri, Exception>>,
+        successResults: List<String>,
+        title: String,
+        content: String,
+        sellerId: String
+    ) {
+        // 선택적으로 강제 업로드
+        AlertDialog.Builder(this)
+            .setTitle("특정 이미지 업로드 실패")
+            .setMessage("업로드에 실패한 이미지가 있습니다." + errorResults.map { (uri, _) ->
+                "$uri\n"
+            } + "그럼에도 불구하고 업로드 하시겠습니까?")
+            .setPositiveButton("업로드") { _, _ ->
+                uploadArticle(sellerId, title, content, successResults)
+            }
+            .create()
+            .show()
+    }
+
+    // 업로드 실패
+    private fun uploadError() {
+        Toast.makeText(this, "사진 업로드에 실패했습니다.", Toast.LENGTH_SHORT).show()
+        hideProgress()
+    }
+
 
     // 리사이클러뷰 이미지 지우기
     private fun removePhoto(uri: Uri) {
