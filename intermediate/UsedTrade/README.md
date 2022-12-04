@@ -207,7 +207,40 @@
 >View의 item들을 adapter를 통해 binding해준다. listView는 item을 만들때 마다 새로 만들지만, recyclerView는 이전 item이 사용하던 공간을 재활용(그 자리에 binding)하여 사용한다.  
 [기본사용법(kotlin)-출처:codechacha](https://codechacha.com/ko/android-recyclerview/)
 
+## 추가
+Advanced - Camera app 의 카메라 기능을 추가하여 갤러리 뿐만 아니라 카메라로 직접 사진을 찍어
+글을 작성할 수 있는 기능을 추가하였다.
 
+[카메라](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/Camera#camera-app)
+
+### registerForActivityResult
+deprecated 된 starActivityForResult, onActivityResult를 대체하기 위해서 사용  
+(본 프로젝트에서는 카메라로 사진을 찍은 후 다음 액티비티로 넘어가 선택할 사진을 고를 수 있도록 하였는데  
+이때, 글쓰기 액티비티로 사진 데이터를 받아주어야 하기때문에 ActivityResult를 사용하였다.)
+
+기존에는 ```starActivityForResult```로 액티비티를 실행하고, ```onActivityResult```에서 받아온 데이터를 처리하였는데
+다음과 같은 이유로 deprecated 되었다.  
+```결과를 얻는 Activity를 실행하는 로직을 사용할 때, 메모리 부족으로 인해 프로세스와 Activity가 사라질 수 있다. (특히 카메라 같은 메모리를 많이 사용하는 작업은 소멸 확률이 굉장히 높다.)```
+
+그래서 ```registerForActivityResult```라는 대체제가 나와 사용할 수 있다.
+
+
+``` kotlin
+// 기존의 onActivityResult 역할 
+val launcher = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+       // 액티비티가 정상적으로 돌아왔을 경우 콜백
+            
+       if (it.resultCode == Activity.RESULT_OK) {
+       // 할 동작을 정의
+       // 기존의 onActivityResult 메소드의 작업을 여기에다 정의해 주면됨
+       // ...
+       }
+}
+
+// 기존의 startActivityForResult의 역할 (requestCode를 보낼 필요가 없어졌음)
+val intent = Intent(this, 넘어갈 액티비티)
+launcher.launch(intent)
+```
 
 ## 중고거래앱
 
