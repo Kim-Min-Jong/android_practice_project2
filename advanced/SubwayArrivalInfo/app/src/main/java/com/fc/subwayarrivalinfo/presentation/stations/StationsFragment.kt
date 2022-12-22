@@ -1,24 +1,84 @@
 package com.fc.subwayarrivalinfo.presentation.stations
 
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.fc.subwayarrivalinfo.R
+import androidx.core.widget.addTextChangedListener
+import androidx.recyclerview.widget.DefaultItemAnimator
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.fc.subwayarrivalinfo.databinding.FragmentStationsBinding
+import com.fc.subwayarrivalinfo.domain.Station
+import com.fc.subwayarrivalinfo.extensions.toGone
+import com.fc.subwayarrivalinfo.extensions.toVisible
+import org.koin.android.scope.ScopeFragment
 
-class StationsFragment : Fragment() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
 
-    }
+class StationsFragment : ScopeFragment(), StationsContract.View {
+
+    override val presenter: StationsContract.Presenter by inject()
+
+    private var binding: FragmentStationsBinding? = null
 
     override fun onCreateView(
-        inflater: LayoutInflater, container: ViewGroup?,
+        inflater: LayoutInflater,
+        container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_stations, container, false)
+    ): View = FragmentStationsBinding.inflate(inflater, container, false)
+        .also { binding = it }
+        .root
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initViews()
+        bindViews()
+        presenter.onViewCreated()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        presenter.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.onDestroy()
+    }
+
+    override fun showLoadingIndicator() {
+        binding?.progressBar?.toVisible()
+    }
+
+    override fun hideLoadingIndicator() {
+        binding?.progressBar?.toGone()
+    }
+
+    override fun showStations(stations: List<Station>) {
+        (binding?.recyclerView?.adapter as? StationsAdapter)?.run {
+            this.data = stations
+            notifyDataSetChanged()
+        }
+    }
+
+    private fun initViews() {
+        binding?.recyclerView?.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            adapter = StationsAdapter()
+            itemAnimator = DefaultItemAnimator()
+            addItemDecoration(DividerItemDecoration(context, RecyclerView.VERTICAL))
+        }
+    }
+
+    private fun bindViews() {
+        binding?.searchEditText?.addTextChangedListener { editable ->
+            presenter.filterStations(editable.toString())
+        }
+
+        (binding?.recyclerView?.adapter as? StationsAdapter)?.apply {
+            onItemClickListener = { station -> }
+            onFavoriteClickListener = { station -> }
+        }
+    }
 }

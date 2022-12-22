@@ -36,17 +36,7 @@ class StationRepositoryImpl(
         // 디비가 가져온 시간이 없거나(로컬디비 초기 상태), 파일 업데이트 시점이 디비보다 더 뒤라면 새로운 역 정보가 있다는 뜻으로
         // 정보 insert를 실행
         if (lastDatabaseUpdatedTimeMillis == null || fileUpdatedTimeMillis > lastDatabaseUpdatedTimeMillis) {
-            val stationSubways = stationApi.getStationSubways()
-            stationDao.insertStations(stationSubways.map { it.first })
-            stationDao.insertSubways(stationSubways.map { it.second })
-            stationDao.insertCrossReferences(
-                stationSubways.map { (station, subway) ->
-                    StationSubwayCrossRefEntity(
-                        station.stationName,
-                        subway.subwayId
-                    )
-                }
-            )
+            stationDao.insertStationSubways(stationApi.getStationSubways())
             preferenceManager.putLong(KEY_LAST_DATABASE_UPDATED_TIME_MILLIS, fileUpdatedTimeMillis)
         }
     }

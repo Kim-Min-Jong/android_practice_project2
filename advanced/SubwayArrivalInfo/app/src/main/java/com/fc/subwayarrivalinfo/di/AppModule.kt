@@ -8,6 +8,9 @@ import com.fc.subwayarrivalinfo.data.preference.PreferenceManager
 import com.fc.subwayarrivalinfo.data.preference.SharedPreferenceManager
 import com.fc.subwayarrivalinfo.data.repository.StationRepository
 import com.fc.subwayarrivalinfo.data.repository.StationRepositoryImpl
+import com.fc.subwayarrivalinfo.presentation.stations.StationsContract
+import com.fc.subwayarrivalinfo.presentation.stations.StationsFragment
+import com.fc.subwayarrivalinfo.presentation.stations.StationsPresenter
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.storage.ktx.storage
 import kotlinx.coroutines.Dispatchers
@@ -31,4 +34,10 @@ val appModule = module {
 
     // Repository
     single<StationRepository> { StationRepositoryImpl(get(), get(), get(), get()) }
+
+    // Presentation
+    // scope - 스코프 내에서 정의된 의존성은 이 내부(여기서는 stations fragment)에서만 사용, 공유할 수 있다
+    scope<StationsFragment> {
+        scoped<StationsContract.Presenter> { StationsPresenter(getSource(), get()) }
+    }
 }
