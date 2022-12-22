@@ -11,6 +11,9 @@ import com.fc.subwayarrivalinfo.data.preference.PreferenceManager
 import com.fc.subwayarrivalinfo.data.preference.SharedPreferenceManager
 import com.fc.subwayarrivalinfo.data.repository.StationRepository
 import com.fc.subwayarrivalinfo.data.repository.StationRepositoryImpl
+import com.fc.subwayarrivalinfo.presentation.stationarrivals.StationArrivalsContract
+import com.fc.subwayarrivalinfo.presentation.stationarrivals.StationArrivalsFragment
+import com.fc.subwayarrivalinfo.presentation.stationarrivals.StationArrivalsPresenter
 import com.fc.subwayarrivalinfo.presentation.stations.StationsContract
 import com.fc.subwayarrivalinfo.presentation.stations.StationsFragment
 import com.fc.subwayarrivalinfo.presentation.stations.StationsPresenter
@@ -69,6 +72,8 @@ val appModule = module {
     scope<StationsFragment> {
         scoped<StationsContract.Presenter> { StationsPresenter(getSource(), get()) }
     }
-
+    scope<StationArrivalsFragment> {
+        scoped<StationArrivalsContract.Presenter> { StationArrivalsPresenter(getSource(), get(), get()) }
+    }
 
 }
