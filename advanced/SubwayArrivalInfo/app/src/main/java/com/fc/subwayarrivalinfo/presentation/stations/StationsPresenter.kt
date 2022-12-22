@@ -71,4 +71,10 @@ class StationsPresenter(
             }
             .launchIn(scope)
     }
+    override fun toggleStationFavorite(station: Station) {
+        scope.launch {
+            // 원본데이터 손상 방지를 위해 copyrighted
+            stationRepository.updateStation(station.copy(isFavorited = !station.isFavorited))
+        }
+    }
 }

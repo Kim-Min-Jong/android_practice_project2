@@ -88,11 +88,15 @@ class StationsFragment : ScopeFragment(), StationsContract.View {
                 val action = StationsFragmentDirections.toStationArrivalsAction(station)
                 findNavController().navigate(action)
             }
-            onFavoriteClickListener = { station -> }
+            onFavoriteClickListener = { station ->
+                presenter.toggleStationFavorite(station)
+            }
         }
     }
     private fun hideKeyboard() {
         val inputMethodManager = context?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
         inputMethodManager.hideSoftInputFromWindow(activity?.currentFocus?.windowToken, 0)
     }
+
+
 }

@@ -14,4 +14,7 @@ interface StationRepository {
 
     // 역 도착정보 가져오기
     suspend fun getStationArrivals(stationName: String): List<ArrivalInformation>
+
+    //
+    suspend fun updateStation(station: Station)
 }

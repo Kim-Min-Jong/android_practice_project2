@@ -1,6 +1,7 @@
 package com.fc.subwayarrivalinfo.presentation.stationarrivals
 
 import com.fc.subwayarrivalinfo.domain.ArrivalInformation
+import com.fc.subwayarrivalinfo.domain.Station
 import com.fc.subwayarrivalinfo.presentation.BasePresenter
 import com.fc.subwayarrivalinfo.presentation.BaseView
 
@@ -20,5 +21,7 @@ interface StationArrivalsContract {
     interface Presenter : BasePresenter {
 
         fun fetchStationArrivals()
+
+        fun toggleStationFavorite()
     }
 }

@@ -5,6 +5,7 @@ import com.fc.subwayarrivalinfo.data.api.StationArrivalsApi
 import com.fc.subwayarrivalinfo.data.api.response.mapper.toArrivalInformation
 import com.fc.subwayarrivalinfo.data.db.StationDao
 import com.fc.subwayarrivalinfo.data.db.entity.StationSubwayCrossRefEntity
+import com.fc.subwayarrivalinfo.data.db.entity.mapper.toStationEntity
 import com.fc.subwayarrivalinfo.data.db.entity.mapper.toStations
 import com.fc.subwayarrivalinfo.data.preference.PreferenceManager
 import com.fc.subwayarrivalinfo.domain.ArrivalInformation
@@ -29,7 +30,7 @@ class StationRepositoryImpl(
             // 쿼리에 결과에 따른 값 변경이 다른데 이것을 적용시키지 않으면 모든 쿼리 실행할때마다 옵저빙을 해서 과도하게하는 문제가 생길 수 있다.
             // 이것을 방지하기 위해 선언하면 실행한 쿼리의 결과에 해당되는 값들만 옵저빙을 한다.
             .distinctUntilChanged()
-            .map { it.toStations() }
+            .map { stations -> stations.toStations().sortedByDescending { it.isFavorited } }
             .flowOn(dispatcher)
 
     override suspend fun refreshStations() = withContext(dispatcher) {
@@ -53,6 +54,10 @@ class StationRepositoryImpl(
             ?.distinctBy { it.direction }
             ?.sortedBy { it.subway }
             ?: throw RuntimeException("도착 정보를 불러오는 데에 실패했습니다.")
+    }
+
+    override suspend fun updateStation(station: Station) = withContext(dispatcher) {
+        stationDao.updateStation(station.toStationEntity())
     }
 
     companion object {

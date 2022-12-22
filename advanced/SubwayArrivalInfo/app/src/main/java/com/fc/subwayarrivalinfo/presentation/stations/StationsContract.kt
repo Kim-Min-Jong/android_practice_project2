@@ -17,5 +17,7 @@ interface StationsContract {
 
     interface Presenter : BasePresenter {
         fun filterStations(query: String)
+
+        fun toggleStationFavorite(station: Station)
     }
 }
