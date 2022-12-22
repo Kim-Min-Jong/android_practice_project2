@@ -1,10 +1,13 @@
 package com.fc.subwayarrivalinfo.data.repository
 
 import com.fc.subwayarrivalinfo.data.api.StationApi
+import com.fc.subwayarrivalinfo.data.api.StationArrivalsApi
+import com.fc.subwayarrivalinfo.data.api.response.mapper.toArrivalInformation
 import com.fc.subwayarrivalinfo.data.db.StationDao
 import com.fc.subwayarrivalinfo.data.db.entity.StationSubwayCrossRefEntity
 import com.fc.subwayarrivalinfo.data.db.entity.mapper.toStations
 import com.fc.subwayarrivalinfo.data.preference.PreferenceManager
+import com.fc.subwayarrivalinfo.domain.ArrivalInformation
 import com.fc.subwayarrivalinfo.domain.Station
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.Flow
@@ -14,6 +17,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 class StationRepositoryImpl(
+    private val stationArrivalsApi: StationArrivalsApi,
     private val stationApi: StationApi,
     private val stationDao: StationDao,
     private val preferenceManager: PreferenceManager,
@@ -39,6 +43,16 @@ class StationRepositoryImpl(
             stationDao.insertStationSubways(stationApi.getStationSubways())
             preferenceManager.putLong(KEY_LAST_DATABASE_UPDATED_TIME_MILLIS, fileUpdatedTimeMillis)
         }
+    }
+
+    override suspend fun getStationArrivals(stationName: String): List<ArrivalInformation> = withContext(dispatcher) {
+        stationArrivalsApi.getRealtimeStationArrivals(stationName)
+            .body()
+            ?.realtimeArrivalList
+            ?.toArrivalInformation()
+            ?.distinctBy { it.direction }
+            ?.sortedBy { it.subway }
+            ?: throw RuntimeException("도착 정보를 불러오는 데에 실패했습니다.")
     }
 
     companion object {
