@@ -5,6 +5,8 @@ import com.fc.trackingdelivery.data.entity.TrackingItem
 import com.fc.trackingdelivery.data.repository.TrackingItemRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.MainScope
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 
 // repo를 받아 Contract를 구체화
@@ -16,6 +18,14 @@ class TrackingItemsPresenter(
     override var trackingItemInformation: List<Pair<TrackingItem, TrackingInformation>> = emptyList()
 
     override val scope: CoroutineScope = MainScope()
+
+    init {
+        // Presenter가 초기화 할 떄 마다 추적 정보의 변경(추가,삭제)이 있을 때마다 refresh를 함
+        trackingItemRepository
+            .trackingItems
+            .onEach { refresh() }
+            .launchIn(scope)
+    }
 
     override fun onViewCreated() {
         fetchTrackingInformation()
