@@ -3,6 +3,8 @@ package com.fc.trackingdelivery.di
 import com.fc.trackingdelivery.data.api.SweetTrackerApi
 import com.fc.trackingdelivery.data.api.Url
 import com.fc.trackingdelivery.data.db.AppDatabase
+import com.fc.trackingdelivery.data.repository.ShippingCompanyRepository
+import com.fc.trackingdelivery.data.repository.ShippingCompanyRepositoryImpl
 import com.fc.trackingdelivery.data.repository.TrackingItemRepository
 import com.fc.trackingdelivery.data.repository.TrackingItemRepositoryImpl
 import kotlinx.coroutines.Dispatchers
@@ -21,6 +23,7 @@ val appModule = module {
     // Database
     single { AppDatabase.build(androidApplication()) }
     single { get<AppDatabase>().trackingItemDao() }
+    single { get<AppDatabase>().shippingCompanyDao() }
 
     // Api
     single {
@@ -47,4 +50,6 @@ val appModule = module {
 
     // Repository
     single<TrackingItemRepository> { TrackingItemRepositoryImpl(get(), get(), get()) }
+    single<TrackingItemRepository> { TrackingItemRepositoryImpl(get(), get(), get()) }
+    single<ShippingCompanyRepository> { ShippingCompanyRepositoryImpl(get(), get(), get(), get()) }
 }
