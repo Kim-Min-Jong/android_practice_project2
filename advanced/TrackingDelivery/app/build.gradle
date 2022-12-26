@@ -1,7 +1,13 @@
 plugins {
     id 'com.android.application'
     id 'org.jetbrains.kotlin.android'
+    id 'kotlin-kapt'
+    id 'kotlin-parcelize'
+    id 'androidx.navigation.safeargs.kotlin'
 }
+
+Properties properties = new Properties()
+properties.load(project.rootProject.file('local.properties').newDataInputStream())
 
 android {
     compileSdk 32
@@ -14,6 +20,8 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "SWEET_TRACKER_API_KEY", properties["SWEET_TRACKER_API_KEY"]
     }
 
     buildTypes {
@@ -29,6 +37,9 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    viewBinding {
+        enabled true
+    }
 }
 
 dependencies {
@@ -40,4 +51,34 @@ dependencies {
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.4'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.0'
+
+    // Coroutine
+    implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1'
+
+    // koin DI
+    // Koin for Android
+    implementation "io.insert-koin:koin-android:2.2.3"
+    // Koin Android Scope features
+    implementation "io.insert-koin:koin-android-scope:2.2.3"
+    // Koin Android ViewModel features
+    implementation "io.insert-koin:koin-android-viewmodel:2.2.3"
+    // Koin Android Experimental features
+    implementation "io.insert-koin:koin-android-ext:2.2.3"
+
+    // Jetpack Navigation
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.3'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.3'
+
+    // Jetpack Room
+    implementation 'androidx.room:room-runtime:2.4.3'
+    implementation 'androidx.room:room-ktx:2.4.3'
+    kapt 'androidx.room:room-compiler:2.4.3'
+
+    // Retrofit
+    implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+    implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation 'com.squareup.okhttp3:logging-interceptor:4.6.0'
+
+    // Jetpack WorkManager
+    implementation 'androidx.work:work-runtime-ktx:2.7.1'
 }
