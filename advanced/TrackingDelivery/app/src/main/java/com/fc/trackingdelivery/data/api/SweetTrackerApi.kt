@@ -19,4 +19,10 @@ interface SweetTrackerApi {
     // 회사 목록 가져오는 api
     @GET("api/v1/companylist?t_key=${BuildConfig.SWEET_TRACKER_API_KEY}")
     suspend fun getShippingCompanies(): Response<ShippingCompanies>
+
+    // 택배사 추천하는 api
+    @GET("api/v1/recommend?t_key=${BuildConfig.SWEET_TRACKER_API_KEY}")
+    suspend fun getRecommendShippingCompanies(
+        @Query("t_invoice") invoice: String
+    ): Response<ShippingCompanies>
 }

@@ -38,6 +38,20 @@ class ShippingCompanyRepositoryImpl(
         shippingCompanyDao.getAll()
     }
 
+    // 가장 메이져한 택배사를 추천해줌
+    override suspend fun getRecommendShippingCompany(invoice: String): ShippingCompany? = withContext(dispatcher) {
+        try {
+            // 송장 번호로 추천 택배사들을 가져옴
+            trackerApi.getRecommendShippingCompanies(invoice)
+                .body()
+                ?.shippingCompanies
+                // 이 중에서 컴패니 코드가 낮은 것을 선택 (낮은 숫자의 회사 코드는 자주 사용하는 메이져 택배회사로 되어있음 - api 상)
+                ?.minByOrNull { it.code.toIntOrNull() ?: Int.MAX_VALUE }
+        } catch (exception: Exception) {
+            null
+        }
+    }
+
     companion object {
         private const val KEY_LAST_DATABASE_UPDATED_TIME_MILLIS = "KEY_LAST_DATABASE_UPDATED_TIME_MILLIS"
         private const val CACHE_MAX_AGE_MILLIS = 1000L * 60 * 60 * 24 * 7

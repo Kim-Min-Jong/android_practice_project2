@@ -60,6 +60,15 @@ class AddTrackingItemPresenter(
         enableSaveButtonIfAvailable()
     }
 
+    override fun fetchRecommendShippingCompany() {
+        scope.launch {
+            view.showRecommendCompanyLoadingIndicator()
+            // 택배사 추천 api를 통해 송장번호를 통해 추천 택배사를 불려옴옴
+           shippingCompanyRepository.getRecommendShippingCompany(invoice!!)?.let { view.showRecommendCompany(it) }
+            view.hideRecommendCompanyLoadingIndicator()
+        }
+    }
+
     override fun saveTrackingItem() {
         scope.launch {
             try {
