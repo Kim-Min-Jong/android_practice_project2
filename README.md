@@ -28,4 +28,5 @@ main 브랜치에는 그 날 공부한 것 정리한 Readme를 링크할 예정(
 [Advanced - ToDoList app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/ToDoList)  
 [Advanced - shopping app](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/shopping)  
 [Advanced - Camera app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/Camera)  
-[Advanced - SubwayArrivalInfo app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/SubwayArrivalInfo)                   
+[Advanced - SubwayArrivalInfo app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/SubwayArrivalInfo)                     
+[Advanced - TrackingDelivery app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/TrackingDelivery)  
