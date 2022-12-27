@@ -8,10 +8,7 @@ import com.fc.trackingdelivery.data.entity.TrackingInformation
 import com.fc.trackingdelivery.data.entity.TrackingItem
 import com.fc.trackingdelivery.data.preference.PreferenceManager
 import com.fc.trackingdelivery.data.preference.SharedPreferenceManager
-import com.fc.trackingdelivery.data.repository.ShippingCompanyRepository
-import com.fc.trackingdelivery.data.repository.ShippingCompanyRepositoryImpl
-import com.fc.trackingdelivery.data.repository.TrackingItemRepository
-import com.fc.trackingdelivery.data.repository.TrackingItemRepositoryImpl
+import com.fc.trackingdelivery.data.repository.*
 import com.fc.trackingdelivery.presentation.addtrackingitem.AddTrackingItemFragment
 import com.fc.trackingdelivery.presentation.addtrackingitem.AddTrackingItemPresenter
 import com.fc.trackingdelivery.presentation.addtrackingitem.AddTrackingItemsContract
@@ -21,6 +18,7 @@ import com.fc.trackingdelivery.presentation.trackinghistory.TrackingHistoryPrese
 import com.fc.trackingdelivery.presentation.trackingitems.TrackingItemsContract
 import com.fc.trackingdelivery.presentation.trackingitems.TrackingItemsFragment
 import com.fc.trackingdelivery.presentation.trackingitems.TrackingItemsPresenter
+import com.fc.trackingdelivery.work.AppWorkerFactory
 import kotlinx.coroutines.Dispatchers
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -71,6 +69,9 @@ val appModule = module {
     single<TrackingItemRepository> { TrackingItemRepositoryImpl(get(), get(), get()) }
     single<ShippingCompanyRepository> { ShippingCompanyRepositoryImpl(get(), get(), get(), get()) }
 
+//    single<TrackingItemRepository> { TrackingItemRepositoryStub() }
+
+
     // Fragments
     scope<TrackingItemsFragment> {
         scoped<TrackingItemsContract.Presenter> { TrackingItemsPresenter(getSource(), get()) }
@@ -86,4 +87,6 @@ val appModule = module {
         }
     }
 
+    // Work
+    single { AppWorkerFactory(get(), get()) }
 }

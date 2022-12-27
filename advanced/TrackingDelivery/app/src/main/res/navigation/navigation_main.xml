@@ -37,11 +37,11 @@
 
         <argument
             android:name="item"
-            app:argType="fastcampus.aop.part5.chapter06.data.entity.TrackingItem" />
+            app:argType="com.fc.trackingdelivery.data.entity.TrackingItem" />
 
         <argument
             android:name="information"
-            app:argType="fastcampus.aop.part5.chapter06.data.entity.TrackingInformation" />
+            app:argType="com.fc.trackingdelivery.data.entity.TrackingInformation" />
 
 
     </fragment>
