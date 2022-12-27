@@ -4,6 +4,8 @@ import android.app.Activity
 import com.fc.trackingdelivery.data.api.SweetTrackerApi
 import com.fc.trackingdelivery.data.api.Url
 import com.fc.trackingdelivery.data.db.AppDatabase
+import com.fc.trackingdelivery.data.entity.TrackingInformation
+import com.fc.trackingdelivery.data.entity.TrackingItem
 import com.fc.trackingdelivery.data.preference.PreferenceManager
 import com.fc.trackingdelivery.data.preference.SharedPreferenceManager
 import com.fc.trackingdelivery.data.repository.ShippingCompanyRepository
@@ -13,6 +15,9 @@ import com.fc.trackingdelivery.data.repository.TrackingItemRepositoryImpl
 import com.fc.trackingdelivery.presentation.addtrackingitem.AddTrackingItemFragment
 import com.fc.trackingdelivery.presentation.addtrackingitem.AddTrackingItemPresenter
 import com.fc.trackingdelivery.presentation.addtrackingitem.AddTrackingItemsContract
+import com.fc.trackingdelivery.presentation.trackinghistory.TrackingHistoryContract
+import com.fc.trackingdelivery.presentation.trackinghistory.TrackingHistoryFragment
+import com.fc.trackingdelivery.presentation.trackinghistory.TrackingHistoryPresenter
 import com.fc.trackingdelivery.presentation.trackingitems.TrackingItemsContract
 import com.fc.trackingdelivery.presentation.trackingitems.TrackingItemsFragment
 import com.fc.trackingdelivery.presentation.trackingitems.TrackingItemsPresenter
@@ -75,4 +80,10 @@ val appModule = module {
             AddTrackingItemPresenter(getSource(), get(), get())
         }
     }
+    scope<TrackingHistoryFragment> {
+        scoped<TrackingHistoryContract.Presenter> { (trackingItem: TrackingItem, trackingInformation: TrackingInformation) ->
+            TrackingHistoryPresenter(getSource(), get(), trackingItem, trackingInformation)
+        }
+    }
+
 }

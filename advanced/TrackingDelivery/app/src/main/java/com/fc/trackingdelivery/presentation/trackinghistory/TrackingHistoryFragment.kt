@@ -1,23 +1,100 @@
 package com.fc.trackingdelivery.presentation.trackinghistory
 
+import android.annotation.SuppressLint
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import com.fc.trackingdelivery.R
+import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.DividerItemDecoration
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
+import com.fc.trackingdelivery.data.entity.TrackingInformation
+import com.fc.trackingdelivery.data.entity.TrackingItem
+import com.fc.trackingdelivery.databinding.FragmentTrackingHistoryBinding
+import org.koin.android.scope.ScopeFragment
+import org.koin.core.parameter.parametersOf
 
+class TrackingHistoryFragment : ScopeFragment(), TrackingHistoryContract.View {
 
-class TrackingHistoryFragment : Fragment() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
+    override val presenter: TrackingHistoryContract.Presenter by inject {
+        parametersOf(arguments.item, arguments.information)
     }
+
+    private var binding: FragmentTrackingHistoryBinding? = null
+
+    private val arguments: TrackingHistoryFragmentArgs by navArgs()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
-        // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_tracking_history, container, false)
+    ): View = FragmentTrackingHistoryBinding.inflate(inflater)
+        .also { binding = it }
+        .root
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        initViews()
+        bindViews()
+        presenter.onViewCreated()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        presenter.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        presenter.onDestroy()
+    }
+
+    private fun bindViews() {
+        binding?.refreshLayout?.setOnRefreshListener {
+            presenter.refresh()
+        }
+        binding?.deleteTrackingItemButton?.setOnClickListener {
+            presenter.deleteTrackingItem()
+        }
+    }
+
+    // 프래그먼트 뷰 초기화 (리사이클러뷰)
+    private fun initViews() {
+        binding?.recyclerView?.apply {
+            layoutManager = LinearLayoutManager(context, RecyclerView.VERTICAL, false)
+            adapter = TrackingHistoryAdapter()
+            addItemDecoration(DividerItemDecoration(context, RecyclerView.VERTICAL))
+        }
+    }
+
+    // 리사이클러뷰 바인딩
+    @SuppressLint("SetTextI18n")
+    override fun showTrackingItemInformation(
+        trackingItem: TrackingItem,
+        trackingInformation: TrackingInformation
+    ) {
+        binding?.resultTextView?.text = trackingInformation.level?.label
+        binding?.invoiceTextView?.text = "${trackingInformation.invoiceNo} (${trackingItem.company.name})"
+
+        binding?.itemNameTextView?.text =
+            if (trackingInformation.itemName.isNullOrBlank()) {
+                "이름 없음"
+            } else {
+                trackingInformation.itemName
+            }
+
+        (binding?.recyclerView?.adapter as? TrackingHistoryAdapter)?.run {
+            data = trackingInformation.trackingDetails ?: emptyList()
+            notifyDataSetChanged()
+        }
+    }
+
+    override fun finish() {
+        findNavController().popBackStack()
+    }
+
+    override fun hideLoadingIndicator() {
+        binding?.refreshLayout?.isRefreshing = false
     }
 }

@@ -1,7 +1,10 @@
 package com.fc.trackingdelivery.data.entity
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class TrackingInformation(
     @SerializedName("adUrl")
     val adUrl: String? = null,
@@ -46,4 +49,4 @@ data class TrackingInformation(
     // 에러 메세지
     @SerializedName("msg")
     val errorMessage: String? = null
-)
+) : Parcelable

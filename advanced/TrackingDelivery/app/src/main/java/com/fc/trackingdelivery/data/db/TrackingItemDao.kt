@@ -1,9 +1,6 @@
 package com.fc.trackingdelivery.data.db
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import com.fc.trackingdelivery.data.entity.TrackingItem
 import kotlinx.coroutines.flow.Flow
 
@@ -21,4 +18,8 @@ interface TrackingItemDao {
     // 새로운 택배 추가
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: TrackingItem)
+
+    // 운송장 삭제
+    @Delete
+    suspend fun delete(item: TrackingItem)
 }

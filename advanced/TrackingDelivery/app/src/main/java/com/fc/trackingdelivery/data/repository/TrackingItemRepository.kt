@@ -14,4 +14,10 @@ interface TrackingItemRepository {
 
     // 변경된 데이터를 저장
     suspend fun saveTrackingItem(trackingItem: TrackingItem)
+
+    // 추적 상세정보를 가져옴 (단일 건)
+    suspend fun getTrackingInformation(companyCode: String, invoice: String): TrackingInformation?
+
+    // 삭제
+    suspend fun deleteTrackingItem(trackingItem: TrackingItem)
 }

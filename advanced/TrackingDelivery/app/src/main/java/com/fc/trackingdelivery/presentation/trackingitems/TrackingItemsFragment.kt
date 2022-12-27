@@ -95,5 +95,12 @@ class TrackingItemsFragment : ScopeFragment(), TrackingItemsContract.View {
         binding?.addTrackingItemFloatingActionButton?.setOnClickListener { _ ->
             findNavController().navigate(R.id.to_add_tracking_item)
         }
+
+        // 리사이클러뷰의 아이템을 클릭하면 네비게이션 실행 (상세화면으로)
+        (binding?.recyclerView?.adapter as? TrackingItemsAdapter)?.onClickItemListener = { item, information ->
+            findNavController()
+                            //safe-args에 의해 자동생성
+                .navigate(TrackingItemsFragmentDirections.toTrackingHistory(item, information))
+        }
     }
 }
