@@ -1,0 +1,6 @@
+<resources>
+    <string name="app_name">GradingMovie</string>
+    <string name="title_home">영화</string>
+    <string name="title_my_page">내 리뷰</string>
+    <string name="title_movie_reviews">영화 상세</string>
+</resources>
