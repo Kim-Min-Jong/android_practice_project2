@@ -2,6 +2,7 @@ package com.fc.gradingmovie
 
 import android.app.Application
 import com.fc.gradingmovie.di.appModule
+import com.fc.gradingmovie.utility.MovieGenerator
 import org.koin.android.BuildConfig
 import org.koin.android.ext.koin.androidContext
 import org.koin.android.ext.koin.androidLogger
@@ -23,5 +24,6 @@ class Application : Application() {
             androidContext(this@Application)
             modules(appModule)
         }
+        MovieGenerator().generate()
     }
 }
