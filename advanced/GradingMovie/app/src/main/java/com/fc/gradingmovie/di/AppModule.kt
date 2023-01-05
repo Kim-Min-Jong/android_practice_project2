@@ -10,6 +10,9 @@ import com.fc.gradingmovie.data.repository.ReviewRepository
 import com.fc.gradingmovie.data.repository.ReviewRepositoryImpl
 import com.fc.gradingmovie.domain.usecase.GetAllMoviesUseCase
 import com.fc.gradingmovie.domain.usecase.GetRandomFeaturedMovieUseCase
+import com.fc.gradingmovie.presentation.home.HomeContract
+import com.fc.gradingmovie.presentation.home.HomeFragment
+import com.fc.gradingmovie.presentation.home.HomePresenter
 import org.koin.dsl.module
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
@@ -35,4 +38,7 @@ val domainModule = module {
 }
 
 val presenterModule = module {
+    scope<HomeFragment> {
+        scoped<HomeContract.Presenter> { HomePresenter(getSource(), get(), get()) }
+    }
 }
