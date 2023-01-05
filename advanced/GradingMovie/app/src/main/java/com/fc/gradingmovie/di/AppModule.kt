@@ -9,6 +9,7 @@ import com.fc.gradingmovie.data.repository.MovieRepositoryImpl
 import com.fc.gradingmovie.data.repository.ReviewRepository
 import com.fc.gradingmovie.data.repository.ReviewRepositoryImpl
 import com.fc.gradingmovie.domain.usecase.GetAllMoviesUseCase
+import com.fc.gradingmovie.domain.usecase.GetAllReviewsUseCase
 import com.fc.gradingmovie.domain.usecase.GetRandomFeaturedMovieUseCase
 import com.fc.gradingmovie.presentation.home.HomeContract
 import com.fc.gradingmovie.presentation.home.HomeFragment
@@ -35,6 +36,7 @@ val dataModule = module {
 val domainModule = module {
     factory { GetRandomFeaturedMovieUseCase(get(), get()) }
     factory { GetAllMoviesUseCase(get()) }
+    factory { GetAllReviewsUseCase(get()) }
 }
 
 val presenterModule = module {

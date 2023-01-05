@@ -27,4 +27,13 @@ class ReviewFireStoreApi (
             .map { it.toObject<Review>() }
             // 첫 번째 것만 가져옴 (없으면 null)
             .firstOrNull()
+
+    // 모든 리뷰를 가져옴 (Review타입으로)
+    override suspend fun getAllReviews(movieId: String): List<Review> =
+        fireStore.collection("reviews")
+            .whereEqualTo("movieId", movieId)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .get()
+            .await()
+            .map { it.toObject<Review>() }
 }
