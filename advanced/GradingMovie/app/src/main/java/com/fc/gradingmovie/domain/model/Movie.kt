@@ -3,9 +3,12 @@ package com.fc.gradingmovie.domain.model
 import com.google.firebase.firestore.DocumentId
 
 data class Movie(
+    // firestore에서 자동 생성
+    // toObject를 사용하기(값 변환) 위해 id를 설정
     @DocumentId
     val id: String? = null,
 
+    // Boolean 이면 이 어노테이션이 권장됨
     @field:JvmField
     val isFeatured: Boolean? = null,
 
