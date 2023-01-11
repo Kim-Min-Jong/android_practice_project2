@@ -17,8 +17,12 @@ class ReviewRepositoryImpl(
     }
 
     // Review Api를 통해 모든 리뷰를 가져온다.
-    override suspend fun getAllReviews(movieId: String): List<Review> = withContext(dispatchers) {
-        reviewApi.getAllReviews(movieId)
+    override suspend fun getAllMovieReviews(movieId: String): List<Review> = withContext(dispatchers) {
+        reviewApi.getAllMovieReviews(movieId)
+    }
+
+    override suspend fun getAllUserReviews(userId: String): List<Review> = withContext(dispatchers) {
+        reviewApi.getAllUserReviews(userId)
     }
 
 }

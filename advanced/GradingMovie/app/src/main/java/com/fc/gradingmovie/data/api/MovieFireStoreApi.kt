@@ -1,6 +1,7 @@
 package com.fc.gradingmovie.data.api
 
 import com.fc.gradingmovie.domain.model.Movie
+import com.google.firebase.firestore.FieldPath
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.ktx.toObject
 import kotlinx.coroutines.tasks.await
@@ -17,4 +18,11 @@ class MovieFireStoreApi(
             // firestore에서 가져온 것을 Movie 형태로 변환
             .map { it.toObject<Movie>() }
 
+
+    override suspend fun getMovies(movieIds: List<String>): List<Movie> =
+        fireStore.collection("movies")
+            .whereIn(FieldPath.documentId(), movieIds)
+            .get()
+            .await()
+            .map { it.toObject<Movie>() }
 }

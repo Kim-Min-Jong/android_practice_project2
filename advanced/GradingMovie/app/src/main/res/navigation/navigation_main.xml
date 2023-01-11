@@ -34,7 +34,9 @@
         android:name="com.fc.gradingmovie.presentation.reviews.MovieReviewsFragment"
         android:label="@string/title_movie_reviews"
         tools:layout="@layout/fragment_movie_reviews">
-
+        <argument
+            android:name="movie"
+            app:argType="com.fc.gradingmovie.domain.model.Movie" />
     </fragment>
 
 </navigation>

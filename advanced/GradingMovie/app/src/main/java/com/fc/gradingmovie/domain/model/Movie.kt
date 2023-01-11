@@ -1,7 +1,10 @@
 package com.fc.gradingmovie.domain.model
 
+import android.os.Parcelable
 import com.google.firebase.firestore.DocumentId
+import kotlinx.parcelize.Parcelize
 
+@Parcelize
 data class Movie(
     // firestore에서 자동 생성
     // toObject를 사용하기(값 변환) 위해 id를 설정
@@ -23,4 +26,4 @@ data class Movie(
     val numberOfScore: Int? = null,
     val releaseYear: Int? = null,
     val runtime: Int? = null
-)
+): Parcelable

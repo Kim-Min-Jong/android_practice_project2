@@ -1,23 +1,26 @@
 package com.fc.gradingmovie.di
 
-import com.fc.gradingmovie.data.api.MovieApi
-import com.fc.gradingmovie.data.api.MovieFireStoreApi
-import com.fc.gradingmovie.data.api.ReviewApi
-import com.fc.gradingmovie.data.api.ReviewFireStoreApi
-import com.fc.gradingmovie.data.repository.MovieRepository
-import com.fc.gradingmovie.data.repository.MovieRepositoryImpl
-import com.fc.gradingmovie.data.repository.ReviewRepository
-import com.fc.gradingmovie.data.repository.ReviewRepositoryImpl
+import android.app.Activity
+import com.fc.gradingmovie.data.api.*
+import com.fc.gradingmovie.data.preference.PreferenceManager
+import com.fc.gradingmovie.data.preference.SharedPreferenceManager
+import com.fc.gradingmovie.data.repository.*
+import com.fc.gradingmovie.domain.model.Movie
+import com.fc.gradingmovie.domain.usecase.GetAllMovieReviewsUseCase
 import com.fc.gradingmovie.domain.usecase.GetAllMoviesUseCase
-import com.fc.gradingmovie.domain.usecase.GetAllReviewsUseCase
+import com.fc.gradingmovie.domain.usecase.GetMyReviewedMoviesUseCase
 import com.fc.gradingmovie.domain.usecase.GetRandomFeaturedMovieUseCase
 import com.fc.gradingmovie.presentation.home.HomeContract
 import com.fc.gradingmovie.presentation.home.HomeFragment
 import com.fc.gradingmovie.presentation.home.HomePresenter
+import com.fc.gradingmovie.presentation.reviews.MovieReviewsContract
+import com.fc.gradingmovie.presentation.reviews.MovieReviewsFragment
+import com.fc.gradingmovie.presentation.reviews.MovieReviewsPresenter
 import org.koin.dsl.module
 import com.google.firebase.firestore.ktx.firestore
 import com.google.firebase.ktx.Firebase
 import kotlinx.coroutines.Dispatchers
+import org.koin.android.ext.koin.androidContext
 
 val appModule = module {
     single { Dispatchers.IO }
@@ -28,19 +31,30 @@ val dataModule = module {
 
     single<MovieApi> { MovieFireStoreApi(get()) }
     single<ReviewApi> { ReviewFireStoreApi(get()) }
+    single<UserApi> { UserFirestoreApi(get()) }
 
     single<MovieRepository> { MovieRepositoryImpl(get(), get()) }
     single<ReviewRepository> { ReviewRepositoryImpl(get(), get()) }
+    single<UserRepository> { UserRepositoryImpl(get(), get(), get()) }
+
+    single { androidContext().getSharedPreferences("preference", Activity.MODE_PRIVATE) }
+    single<PreferenceManager> { SharedPreferenceManager(get()) }
 }
 
 val domainModule = module {
     factory { GetRandomFeaturedMovieUseCase(get(), get()) }
     factory { GetAllMoviesUseCase(get()) }
-    factory { GetAllReviewsUseCase(get()) }
+    factory { GetAllMovieReviewsUseCase(get()) }
+    factory { GetMyReviewedMoviesUseCase(get(), get(), get()) }
 }
 
 val presenterModule = module {
     scope<HomeFragment> {
         scoped<HomeContract.Presenter> { HomePresenter(getSource(), get(), get()) }
+    }
+    scope<MovieReviewsFragment> {
+        scoped<MovieReviewsContract.Presenter> { (movie: Movie) ->
+            MovieReviewsPresenter(movie, getSource(), get())
+        }
     }
 }

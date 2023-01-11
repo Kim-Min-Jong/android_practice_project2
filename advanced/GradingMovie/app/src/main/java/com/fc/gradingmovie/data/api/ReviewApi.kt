@@ -7,5 +7,7 @@ interface ReviewApi {
     suspend fun getLatestReview(movieId: String): Review?
 
     // 모든 리뷰를 가져온다.
-    suspend fun getAllReviews(movieId: String): List<Review>
+    suspend fun getAllMovieReviews(movieId: String): List<Review>
+
+    suspend fun getAllUserReviews(userId: String): List<Review>
 }

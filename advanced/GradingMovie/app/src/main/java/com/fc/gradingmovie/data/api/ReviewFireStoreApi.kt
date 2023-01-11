@@ -14,7 +14,7 @@ class ReviewFireStoreApi (
     override suspend fun getLatestReview(movieId: String): Review? =
         // fireStore의 review에서 가져온다.
         fireStore.collection("reviews")
-             // movieId가 movieId인 것을
+            // movieId가 movieId인 것을
             .whereEqualTo("movieId", movieId)
             // 최신 순으로
             .orderBy("createdAt", Query.Direction.DESCENDING)
@@ -29,11 +29,20 @@ class ReviewFireStoreApi (
             .firstOrNull()
 
     // 모든 리뷰를 가져옴 (Review타입으로)
-    override suspend fun getAllReviews(movieId: String): List<Review> =
+    override suspend fun getAllMovieReviews(movieId: String): List<Review> =
         fireStore.collection("reviews")
             .whereEqualTo("movieId", movieId)
             .orderBy("createdAt", Query.Direction.DESCENDING)
             .get()
             .await()
             .map { it.toObject<Review>() }
+
+    override suspend fun getAllUserReviews(userId: String): List<Review> =
+        fireStore.collection("reviews")
+            .whereEqualTo("userId", userId)
+            .orderBy("createdAt", Query.Direction.DESCENDING)
+            .get()
+            .await()
+            .map { it.toObject<Review>() }
+
 }

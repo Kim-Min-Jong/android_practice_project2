@@ -13,4 +13,7 @@ class MovieRepositoryImpl(
         movieApi.getAllMovies()
     }
 
+    override suspend fun getMovies(movieIds: List<String>): List<Movie> = withContext(dispatchers) {
+        movieApi.getMovies(movieIds)
+    }
 }
