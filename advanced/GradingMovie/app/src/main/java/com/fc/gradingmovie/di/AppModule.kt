@@ -6,10 +6,7 @@ import com.fc.gradingmovie.data.preference.PreferenceManager
 import com.fc.gradingmovie.data.preference.SharedPreferenceManager
 import com.fc.gradingmovie.data.repository.*
 import com.fc.gradingmovie.domain.model.Movie
-import com.fc.gradingmovie.domain.usecase.GetAllMovieReviewsUseCase
-import com.fc.gradingmovie.domain.usecase.GetAllMoviesUseCase
-import com.fc.gradingmovie.domain.usecase.GetMyReviewedMoviesUseCase
-import com.fc.gradingmovie.domain.usecase.GetRandomFeaturedMovieUseCase
+import com.fc.gradingmovie.domain.usecase.*
 import com.fc.gradingmovie.presentation.home.HomeContract
 import com.fc.gradingmovie.presentation.home.HomeFragment
 import com.fc.gradingmovie.presentation.home.HomePresenter
@@ -49,6 +46,8 @@ val domainModule = module {
     factory { GetAllMoviesUseCase(get()) }
     factory { GetAllMovieReviewsUseCase(get()) }
     factory { GetMyReviewedMoviesUseCase(get(), get(), get()) }
+    factory { SubmitReviewUseCase(get(), get()) }
+    factory { DeleteReviewUseCase(get()) }
 }
 
 val presenterModule = module {

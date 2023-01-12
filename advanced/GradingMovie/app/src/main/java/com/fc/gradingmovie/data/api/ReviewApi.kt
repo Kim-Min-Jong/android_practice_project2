@@ -10,4 +10,10 @@ interface ReviewApi {
     suspend fun getAllMovieReviews(movieId: String): List<Review>
 
     suspend fun getAllUserReviews(userId: String): List<Review>
+
+    // 리뷰 추가
+    suspend fun addReview(review: Review): Review
+
+    // 리뷰 삭제
+    suspend fun removeReview(review: Review)
 }
