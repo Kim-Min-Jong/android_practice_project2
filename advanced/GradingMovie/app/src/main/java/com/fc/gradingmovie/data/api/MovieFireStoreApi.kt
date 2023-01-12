@@ -21,8 +21,10 @@ class MovieFireStoreApi(
 
     override suspend fun getMovies(movieIds: List<String>): List<Movie> =
         fireStore.collection("movies")
+             // 필드 값(@DocumentId)이 movieIds에 속하는지 판단해서 (단일 인덱싱)
             .whereIn(FieldPath.documentId(), movieIds)
-            .get()
+            // 가져옴옴
+           .get()
             .await()
             .map { it.toObject<Movie>() }
 }

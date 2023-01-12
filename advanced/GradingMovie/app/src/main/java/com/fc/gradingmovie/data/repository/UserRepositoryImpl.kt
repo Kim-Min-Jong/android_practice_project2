@@ -12,10 +12,12 @@ class UserRepositoryImpl(
     private val dispatchers: CoroutineDispatcher
 ) : UserRepository {
 
+    // 로컬 preference에서 가져옴
     override suspend fun getUser(): User? = withContext(dispatchers) {
         preferenceManager.getString(KEY_USER_ID)?.let { User(it) }
     }
 
+    // 로컬 preference에서 저장
     override suspend fun saveUser(user: User) = withContext(dispatchers) {
         val newUser = userApi.saveUser(user)
         preferenceManager.putString(KEY_USER_ID, newUser.id!!)

@@ -13,6 +13,9 @@ import com.fc.gradingmovie.domain.usecase.GetRandomFeaturedMovieUseCase
 import com.fc.gradingmovie.presentation.home.HomeContract
 import com.fc.gradingmovie.presentation.home.HomeFragment
 import com.fc.gradingmovie.presentation.home.HomePresenter
+import com.fc.gradingmovie.presentation.mypage.MyPageContract
+import com.fc.gradingmovie.presentation.mypage.MyPageFragment
+import com.fc.gradingmovie.presentation.mypage.MyPagePresenter
 import com.fc.gradingmovie.presentation.reviews.MovieReviewsContract
 import com.fc.gradingmovie.presentation.reviews.MovieReviewsFragment
 import com.fc.gradingmovie.presentation.reviews.MovieReviewsPresenter
@@ -56,5 +59,8 @@ val presenterModule = module {
         scoped<MovieReviewsContract.Presenter> { (movie: Movie) ->
             MovieReviewsPresenter(movie, getSource(), get())
         }
+    }
+    scope<MyPageFragment> {
+        scoped<MyPageContract.Presenter> { MyPagePresenter(getSource(), get()) }
     }
 }
