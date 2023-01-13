@@ -30,3 +30,4 @@ main 브랜치에는 그 날 공부한 것 정리한 Readme를 링크할 예정(
 [Advanced - Camera app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/Camera)  
 [Advanced - SubwayArrivalInfo app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/SubwayArrivalInfo)                     
 [Advanced - TrackingDelivery app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/TrackingDelivery)  
+[Advanced - Grading Movie app 정리](https://github.com/Kim-Min-Jong/android_practice_project2/tree/Advanced/advanced/GradingMovie)  
